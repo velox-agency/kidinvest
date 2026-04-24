@@ -103,7 +103,7 @@ export function AppSplashScreen({
         },
       ]}>
       <Animated.Image
-        source={colorScheme === 'light' ? LOGO_DARK : LOGO_LIGHT}
+        source={colorScheme === 'dark' ? LOGO_DARK : LOGO_LIGHT}
         resizeMode="contain"
         style={[
           styles.logo,

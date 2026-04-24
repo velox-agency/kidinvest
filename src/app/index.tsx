@@ -36,7 +36,14 @@ export default function HomeScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[
+            styles.content,
+            {
+              alignSelf: 'center',
+              width: '100%',
+              maxWidth: MaxContentWidth,
+            },
+          ]}
           showsVerticalScrollIndicator={false}>
           <HomeHeader
             colorScheme={colorScheme}
@@ -93,15 +100,14 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    alignItems: 'center',
   },
   content: {
     width: '100%',
-    maxWidth: MaxContentWidth,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
     paddingBottom: Spacing.four,
     gap: Spacing.three,
+    flexGrow: 1,
   },
   statsRow: {
     gap: Spacing.three,

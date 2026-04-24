@@ -58,7 +58,7 @@ export function ActionCard({
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    height: 228,
+    minHeight: 228,
     borderRadius: 28,
     borderWidth: 1,
     padding: Spacing.four,

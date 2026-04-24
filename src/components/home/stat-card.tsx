@@ -36,7 +36,7 @@ export function StatCard({ label, value, accent = 'green', colorScheme }: StatCa
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    height: 120,
+    minHeight: 120,
     borderRadius: 24,
     borderWidth: 1,
     padding: Spacing.three,

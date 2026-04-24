@@ -38,29 +38,29 @@ Play Mini-Game → Earn DZD + XP → Visit Avatar Shop (spend/save) → Face Har
 
 ### Stages
 
-| Stage | Age Range | Status | Core Mechanic |
-|---|---|---|---|
-| Stage 1 | 6–9 years | **Build now** | 2D map, mini-games, avatar shop, hard situations |
+| Stage   | Age Range   | Status           | Core Mechanic                                     |
+| ------- | ----------- | ---------------- | ------------------------------------------------- |
+| Stage 1 | 6–9 years   | **Build now**    | 2D map, mini-games, avatar shop, hard situations  |
 | Stage 2 | 10–14 years | Future expansion | Business simulation, investment, entrepreneurship |
 
 ---
 
 ## 2. Tech Stack
 
-| Layer | Technology | Rationale |
-|---|---|---|
-| Framework | React Native via Expo SDK 55 | Cross-platform, managed workflow, OTA updates |
-| Language | TypeScript (strict mode) | Type safety, agent-friendly inference |
-| Navigation | Expo Router (file-based) | Aligns with Expo SDK 55, supports deep linking |
-| Local Storage | MMKV (via `react-native-mmkv`) | Fast synchronous key-value, superior to AsyncStorage |
-| Remote DB | Supabase (PostgreSQL + Auth) | Optional cloud save, RLS policies per user |
-| Offline Sync | Custom sync queue (see §7) | Manual reconciliation on login |
-| 2D Rendering | React Native Skia | Island map, map nodes, particle effects |
-| Animations | Reanimated 3 + Moti | Fluid UI transitions and game feedback |
-| Audio | Expo AV | Sound effects and background music |
-| Localization | i18n-js + locale detection | Arabic, French, English |
-| Icons/Art | SVG via react-native-svg | Resolution-independent assets |
-| Testing | Jest + React Native Testing Library | Unit and integration tests |
+| Layer         | Technology                                                 | Rationale                                                                        |
+| ------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Framework     | React Native via Expo SDK 55                               | Cross-platform, managed workflow, OTA updates                                    |
+| Language      | TypeScript (strict mode)                                   | Type safety, agent-friendly inference                                            |
+| Navigation    | Expo Router (file-based)                                   | Aligns with Expo SDK 55, supports deep linking                                   |
+| Local Storage | AsyncStorage (`@react-native-async-storage/async-storage`) | Already in project, used by Supabase auth SDK — game data uses the same instance |
+| Remote DB     | Supabase (PostgreSQL + Auth)                               | Optional cloud save, RLS policies per user                                       |
+| Offline Sync  | Custom sync queue (see §7)                                 | Manual reconciliation on login                                                   |
+| 2D Rendering  | React Native Skia                                          | Island map, map nodes, particle effects                                          |
+| Animations    | Reanimated 3 + Moti                                        | Fluid UI transitions and game feedback                                           |
+| Audio         | Expo AV                                                    | Sound effects and background music                                               |
+| Localization  | i18n-js + locale detection                                 | Arabic, French, English                                                          |
+| Icons/Art     | SVG via react-native-svg                                   | Resolution-independent assets                                                    |
+| Testing       | Jest + React Native Testing Library                        | Unit and integration tests                                                       |
 
 ---
 
@@ -68,37 +68,50 @@ Play Mini-Game → Earn DZD + XP → Visit Avatar Shop (spend/save) → Face Har
 
 ```
 kidinvest/
-├── app/                          # Expo Router file-based routes
-│   ├── (onboarding)/
-│   │   ├── _layout.tsx
-│   │   ├── language.tsx          # Step 1: Language selection
-│   │   ├── avatar.tsx            # Step 2: Avatar selection (boy/girl)
-│   │   └── profile.tsx           # Step 3: Name + age entry
-│   ├── (main)/
-│   │   ├── _layout.tsx           # Tab navigator: Map ↔ Shop
-│   │   ├── map.tsx               # The Island Map screen
-│   │   └── shop.tsx              # The Avatar Shop screen
-│   ├── (games)/
-│   │   ├── _layout.tsx
-│   │   ├── bubble-pop.tsx        # Race Against Time
-│   │   ├── maze.tsx              # Maze game
-│   │   ├── puzzle.tsx            # Jigsaw Puzzle
-│   │   ├── memory-match.tsx      # Memory Match
-│   │   └── sorting.tsx           # Sorting / Drag-and-drop
-│   ├── (auth)/
-│   │   ├── login.tsx
-│   │   └── register.tsx
-│   └── _layout.tsx               # Root layout, auth gate, onboarding gate
 │
-├── src/
-│   ├── components/               # Shared UI components
-│   │   ├── ui/                   # Generic primitives (Button, Card, Modal, Text)
-│   │   ├── map/                  # Island map components
+├── assets/                           # Root-level static assets (Expo Metro resolver)
+│   └── images/
+│       ├── map/                      # Island background, path SVGs
+│       ├── avatars/                  # Boy/girl base sprites + equipment layers
+│       ├── shop/                     # Item thumbnails
+│       ├── events/                   # Hard situation illustrations
+│       ├── audio/
+│       │   ├── bgm/
+│       │   └── sfx/
+│       └── animations/               # Lottie JSON files for rewards/events
+│
+├── src/                              # All source code lives here (Expo SDK 55 convention)
+│   │
+│   ├── app/                          # Expo Router file-based routes (mapped via tsconfig paths)
+│   │   ├── (onboarding)/
+│   │   │   ├── _layout.tsx
+│   │   │   ├── language.tsx          # Step 1: Language selection
+│   │   │   ├── avatar.tsx            # Step 2: Avatar selection (boy/girl)
+│   │   │   └── profile.tsx           # Step 3: Name + age entry
+│   │   ├── (main)/
+│   │   │   ├── _layout.tsx           # Tab navigator: Map ↔ Shop
+│   │   │   ├── map.tsx               # The Island Map screen
+│   │   │   └── shop.tsx              # The Avatar Shop screen
+│   │   ├── (games)/
+│   │   │   ├── _layout.tsx
+│   │   │   ├── bubble-pop.tsx        # Race Against Time
+│   │   │   ├── maze.tsx              # Maze game
+│   │   │   ├── puzzle.tsx            # Jigsaw Puzzle
+│   │   │   ├── memory-match.tsx      # Memory Match
+│   │   │   └── sorting.tsx           # Sorting / Drag-and-drop
+│   │   ├── (auth)/
+│   │   │   ├── login.tsx
+│   │   │   └── register.tsx
+│   │   └── _layout.tsx               # Root layout — onboarding gate + auth gate
+│   │
+│   ├── components/                   # Shared UI components
+│   │   ├── ui/                       # Generic primitives (Button, Card, Modal, Text)
+│   │   ├── map/
 │   │   │   ├── IslandMap.tsx
 │   │   │   ├── MapNode.tsx
 │   │   │   ├── MapPath.tsx
 │   │   │   └── HardSituationOverlay.tsx
-│   │   ├── shop/                 # Shop components
+│   │   ├── shop/
 │   │   │   ├── ShopGrid.tsx
 │   │   │   ├── ShopItemCard.tsx
 │   │   │   ├── AvatarPreview.tsx
@@ -110,41 +123,41 @@ kidinvest/
 │   │   │   ├── WalletDisplay.tsx
 │   │   │   ├── XPBar.tsx
 │   │   │   └── RewardPopup.tsx
-│   │   └── games/                # Shared game UI primitives
+│   │   └── games/
 │   │       ├── GameHeader.tsx
 │   │       ├── GameTimer.tsx
 │   │       └── GameResultModal.tsx
 │   │
-│   ├── systems/                  # Core business logic (no UI)
+│   ├── systems/                      # Core business logic — no React, no UI
 │   │   ├── economy/
-│   │   │   ├── EconomyEngine.ts  # Earn, spend, validate transactions
-│   │   │   └── PricingConfig.ts  # DZD values, XP values
+│   │   │   ├── EconomyEngine.ts
+│   │   │   └── PricingConfig.ts
 │   │   ├── events/
-│   │   │   ├── HardSituationEngine.ts  # Event scheduling + outcome logic
-│   │   │   └── EventRegistry.ts        # All defined hard situation events
+│   │   │   ├── HardSituationEngine.ts
+│   │   │   └── EventRegistry.ts
 │   │   ├── progression/
-│   │   │   ├── ProgressionEngine.ts    # Level unlocking, XP thresholds
-│   │   │   └── MapConfig.ts            # Node definitions, order, game type mapping
+│   │   │   ├── ProgressionEngine.ts
+│   │   │   └── MapConfig.ts
 │   │   ├── games/
-│   │   │   ├── BaseGameEngine.ts       # Abstract base all games implement
+│   │   │   ├── BaseGameEngine.ts
 │   │   │   ├── BubblePopEngine.ts
 │   │   │   ├── MazeEngine.ts
 │   │   │   ├── PuzzleEngine.ts
 │   │   │   ├── MemoryMatchEngine.ts
 │   │   │   └── SortingEngine.ts
 │   │   └── sync/
-│   │       ├── SyncQueue.ts            # Offline mutation queue
-│   │       └── SyncEngine.ts          # Supabase push/pull on login
+│   │       ├── SyncQueue.ts
+│   │       └── SyncEngine.ts
 │   │
-│   ├── store/                    # Zustand global state slices
-│   │   ├── index.ts              # Re-exports all stores
-│   │   ├── playerStore.ts        # Profile, avatar, language
-│   │   ├── economyStore.ts       # DZD balance, XP, transaction history
-│   │   ├── progressionStore.ts   # Unlocked nodes, current level
-│   │   ├── shopStore.ts          # Owned items, equipped items
-│   │   └── sessionStore.ts       # Active game session, pending events
+│   ├── store/                        # Zustand global state slices
+│   │   ├── index.ts
+│   │   ├── playerStore.ts
+│   │   ├── economyStore.ts
+│   │   ├── progressionStore.ts
+│   │   ├── shopStore.ts
+│   │   └── sessionStore.ts           # Ephemeral — NOT persisted
 │   │
-│   ├── hooks/                    # Custom React hooks
+│   ├── hooks/
 │   │   ├── useEconomy.ts
 │   │   ├── useProgression.ts
 │   │   ├── useHardSituation.ts
@@ -152,32 +165,15 @@ kidinvest/
 │   │   ├── useGame.ts
 │   │   └── useSync.ts
 │   │
-│   ├── services/                 # External service adapters
+│   ├── services/                     # External service adapters
 │   │   ├── supabase/
-│   │   │   ├── client.ts         # Supabase client init
-│   │   │   ├── auth.ts           # Auth helpers
+│   │   │   ├── auth.ts               # Auth helpers (login, register, logout, session)
 │   │   │   ├── profileService.ts
 │   │   │   ├── progressionService.ts
 │   │   │   └── economyService.ts
 │   │   └── storage/
-│   │       ├── mmkv.ts           # MMKV instance + typed helpers
-│   │       └── localRepository.ts # All local read/write operations
-│   │
-│   ├── locales/                  # i18n translation files
-│   │   ├── ar.json
-│   │   ├── fr.json
-│   │   └── en.json
-│   │
-│   ├── assets/                   # Static assets
-│   │   ├── images/
-│   │   │   ├── map/              # Island background, path SVGs
-│   │   │   ├── avatars/          # Boy/girl base sprites + equipment layers
-│   │   │   ├── shop/             # Item thumbnails
-│   │   │   └── events/           # Hard situation illustrations
-│   │   ├── audio/
-│   │   │   ├── bgm/
-│   │   │   └── sfx/
-│   │   └── animations/           # Lottie JSON files for rewards/events
+│   │       ├── asyncStorage.ts       # Typed AsyncStorage helpers (get/set/remove with JSON)
+│   │       └── localRepository.ts   # All local read/write operations (wraps asyncStorage)
 │   │
 │   ├── constants/
 │   │   ├── colors.ts
@@ -185,34 +181,93 @@ kidinvest/
 │   │   ├── layout.ts
 │   │   └── gameConfig.ts
 │   │
-│   ├── types/                    # Global TypeScript types
+│   ├── locales/
+│   │   ├── ar.json
+│   │   ├── fr.json
+│   │   └── en.json
+│   │
+│   ├── types/
 │   │   ├── player.types.ts
 │   │   ├── economy.types.ts
 │   │   ├── game.types.ts
 │   │   ├── shop.types.ts
 │   │   ├── events.types.ts
-│   │   └── stage2.types.ts       # Stubbed types for future Stage 2
+│   │   └── stage2.types.ts           # Stubs only — do not implement
 │   │
 │   └── utils/
+│       ├── supabase.ts               # Supabase client singleton (see §13)
 │       ├── random.ts
-│       ├── formatDZD.ts          # "1,500 د.ج" formatter
-│       ├── ageGroup.ts           # Difficulty scaling by age
+│       ├── formatDZD.ts
+│       ├── ageGroup.ts
 │       └── logger.ts
 │
 ├── supabase/
-│   ├── migrations/               # SQL migration files
-│   └── seed.sql                  # Dev seed data
+│   ├── migrations/
+│   └── seed.sql
 │
 ├── __tests__/
 │   ├── systems/
 │   ├── hooks/
 │   └── components/
 │
-├── app.config.ts                 # Expo config
+├── app.json                          # Expo config (SDK 55 uses app.json, not app.config.ts by default)
+├── expo-env.d.ts                     # Expo auto-generated environment types
+├── global.css                        # NativeWind / global styles if used
 ├── tsconfig.json
-├── babel.config.js
-└── ARCHITECTURE.md               # This file
+├── bun.lock                          # Bun is the package manager for this project
+└── ARCHITECTURE.md
 ```
+
+### Key SDK 55 Layout Rules
+
+> **The coding agent must follow these rules without exception.**
+
+1. **All source code lives under `src/`.** Routes, components, hooks, stores, systems, services, utils — everything is under `src/`. Nothing meaningful lives at the root except config files and the `assets/` folder.
+
+2. **`src/app/` is the Expo Router root.** The `app.json` `"expo.router.root"` field points to `src/app`. Confirm this is set in `app.json`:
+
+   ```json
+   {
+     "expo": {
+       "router": { "root": "src/app" }
+     }
+   }
+   ```
+
+3. **Assets stay at the project root** under `assets/`. Metro resolves assets relative to `app.json`, not `src/`. Do not move assets into `src/assets/`.
+
+4. **The Supabase client lives at `src/utils/supabase.ts`** and is the only file that calls `createClient`. See §13 for the exact initialization pattern including the correct env var name (`EXPO_PUBLIC_SUPABASE_KEY`).
+
+5. **`bun` is the package manager.** All install commands use `bun add`, not `npm install` or `yarn add`.
+
+6. **The root layout (`src/app/_layout.tsx`) follows the established pattern:** it wraps the app in `ThemeProvider` (from `@react-navigation/native`), renders the `AnimatedSplashOverlay`, and delegates tab structure to the `AppTabs` component. New screens and navigators are added by extending `AppTabs` or its child navigators — not by restructuring `_layout.tsx`.
+
+   ```tsx
+   // src/app/_layout.tsx — established pattern, do not restructure
+   import {
+     DarkTheme,
+     DefaultTheme,
+     ThemeProvider,
+   } from "@react-navigation/native";
+   import React from "react";
+   import { useColorScheme } from "react-native";
+   import { AnimatedSplashOverlay } from "@/components/animated-icon";
+   import AppTabs from "@/components/app-tabs";
+
+   export default function TabLayout() {
+     const colorScheme = useColorScheme();
+     return (
+       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+         <AnimatedSplashOverlay />
+         <AppTabs />
+       </ThemeProvider>
+     );
+   }
+   ```
+
+   The onboarding gate, auth gate, and store hydration must be handled **inside `AppTabs`** (or a wrapper around it), not by adding logic to `_layout.tsx`.
+
+7. **`src/components/app-tabs.tsx` is the navigation hub.** It defines the tab bar (Map tab and Shop tab) and any stack navigators nested within tabs. The game screens are pushed onto the Map tab's stack — they are not separate route groups. `app-tabs.web.tsx` is the web variant and must be kept in sync with any navigation changes.
 
 ---
 
@@ -250,22 +305,22 @@ The codebase is split into three tiers. The coding agent must respect these depe
 ```typescript
 // src/types/player.types.ts
 
-export type Language = 'ar' | 'fr' | 'en';
-export type AvatarBase = 'boy' | 'girl';
+export type Language = "ar" | "fr" | "en";
+export type AvatarBase = "boy" | "girl";
 
 export interface PlayerProfile {
-  id: string;                   // UUID, generated locally on first launch
+  id: string; // UUID, generated locally on first launch
   name: string;
-  age: number;                  // Used for difficulty scaling
+  age: number; // Used for difficulty scaling
   language: Language;
   avatarBase: AvatarBase;
   equippedItems: EquippedItems;
-  createdAt: string;            // ISO 8601
-  supabaseUserId?: string;      // Only present if account created
+  createdAt: string; // ISO 8601
+  supabaseUserId?: string; // Only present if account created
 }
 
 export interface EquippedItems {
-  head?: string;      // item ID
+  head?: string; // item ID
   body?: string;
   feet?: string;
   accessory?: string;
@@ -279,28 +334,28 @@ export interface EquippedItems {
 // src/types/economy.types.ts
 
 export interface EconomyState {
-  balanceDZD: number;           // Current spendable balance
-  totalEarnedDZD: number;       // Lifetime earned (for analytics)
-  totalSpentDZD: number;        // Lifetime spent
-  xp: number;                   // Total XP
-  level: number;                // Derived from XP thresholds
-  transactions: Transaction[];  // Last 50 transactions (ring buffer)
+  balanceDZD: number; // Current spendable balance
+  totalEarnedDZD: number; // Lifetime earned (for analytics)
+  totalSpentDZD: number; // Lifetime spent
+  xp: number; // Total XP
+  level: number; // Derived from XP thresholds
+  transactions: Transaction[]; // Last 50 transactions (ring buffer)
 }
 
 export type TransactionType =
-  | 'GAME_REWARD'
-  | 'SHOP_PURCHASE'
-  | 'HARD_SITUATION_COST'
-  | 'HARD_SITUATION_XP_PENALTY'
-  | 'HARD_SITUATION_XP_REWARD';
+  | "GAME_REWARD"
+  | "SHOP_PURCHASE"
+  | "HARD_SITUATION_COST"
+  | "HARD_SITUATION_XP_PENALTY"
+  | "HARD_SITUATION_XP_REWARD";
 
 export interface Transaction {
   id: string;
   type: TransactionType;
-  amountDZD: number;    // Positive = credit, negative = debit
+  amountDZD: number; // Positive = credit, negative = debit
   amountXP: number;
   timestamp: string;
-  sourceId: string;     // game node ID, shop item ID, or event ID
+  sourceId: string; // game node ID, shop item ID, or event ID
   balanceAfter: number;
 }
 ```
@@ -311,21 +366,21 @@ export interface Transaction {
 // src/types/game.types.ts
 
 export type GameType =
-  | 'BUBBLE_POP'
-  | 'MAZE'
-  | 'PUZZLE'
-  | 'MEMORY_MATCH'
-  | 'SORTING';
+  | "BUBBLE_POP"
+  | "MAZE"
+  | "PUZZLE"
+  | "MEMORY_MATCH"
+  | "SORTING";
 
-export type NodeStatus = 'LOCKED' | 'UNLOCKED' | 'COMPLETED' | 'REPLAYING';
+export type NodeStatus = "LOCKED" | "UNLOCKED" | "COMPLETED" | "REPLAYING";
 
 export interface MapNode {
   id: string;
-  order: number;              // Position along the path (0-indexed)
+  order: number; // Position along the path (0-indexed)
   gameType: GameType;
-  difficulty: 1 | 2 | 3;     // Scales with position on map
+  difficulty: 1 | 2 | 3; // Scales with position on map
   reward: NodeReward;
-  prerequisites: string[];    // IDs of nodes that must be completed first
+  prerequisites: string[]; // IDs of nodes that must be completed first
 }
 
 export interface NodeReward {
@@ -347,19 +402,19 @@ export interface PlayerProgression {
 // src/types/shop.types.ts
 
 export type ItemCategory =
-  | 'NEED'      // Essential: food, basic clothing, backpack
-  | 'DESIRE';   // Non-essential: snacks, fashion, toys
+  | "NEED" // Essential: food, basic clothing, backpack
+  | "DESIRE"; // Non-essential: snacks, fashion, toys
 
-export type ItemSlot = 'head' | 'body' | 'feet' | 'accessory' | 'background';
+export type ItemSlot = "head" | "body" | "feet" | "accessory" | "background";
 
 export interface ShopItem {
   id: string;
-  nameKey: string;         // i18n key for localized name
+  nameKey: string; // i18n key for localized name
   descriptionKey: string;
   category: ItemCategory;
   slot: ItemSlot;
   priceDZD: number;
-  imageAsset: string;      // require() path or asset URI
+  imageAsset: string; // require() path or asset URI
   isAvailableFromLevel: number;
 }
 
@@ -375,9 +430,9 @@ export interface PlayerInventory {
 // src/types/events.types.ts
 
 export type HardSituationTrigger =
-  | 'RANDOM_ON_MAP_ENTER'    // Fires at configurable probability when player returns to map
-  | 'AFTER_N_GAMES'          // Fires after completing N games since last event
-  | 'BALANCE_THRESHOLD';     // Fires when balance exceeds a threshold (tests impulse spending)
+  | "RANDOM_ON_MAP_ENTER" // Fires at configurable probability when player returns to map
+  | "AFTER_N_GAMES" // Fires after completing N games since last event
+  | "BALANCE_THRESHOLD"; // Fires when balance exceeds a threshold (tests impulse spending)
 
 export interface HardSituation {
   id: string;
@@ -392,16 +447,16 @@ export interface HardSituation {
 export interface HardSituationChoice {
   id: string;
   labelKey: string;
-  costDZD: number;           // 0 if free choice
+  costDZD: number; // 0 if free choice
   outcome: HardSituationOutcome;
 }
 
 export interface HardSituationOutcome {
-  xpDelta: number;           // Positive or negative
-  dzdDelta: number;          // Usually 0 or negative (cost already deducted)
+  xpDelta: number; // Positive or negative
+  dzdDelta: number; // Usually 0 or negative (cost already deducted)
   feedbackTitleKey: string;
   feedbackBodyKey: string;
-  feedbackSentiment: 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL';
+  feedbackSentiment: "POSITIVE" | "NEGATIVE" | "NEUTRAL";
 }
 ```
 
@@ -472,14 +527,14 @@ CREATE POLICY "Users own their economy"
 
 ## 6. State Management
 
-All global state lives in **Zustand** stores. MMKV persistence is applied via a Zustand middleware. The coding agent must not use React Context for game state.
+All global state lives in **Zustand** stores. AsyncStorage persistence is applied via Zustand's built-in `persist` middleware. The coding agent must not use React Context for game state.
 
 ```typescript
 // src/store/economyStore.ts — example store shape
 
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { mmkvStorage } from '../services/storage/mmkv';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface EconomyStore extends EconomyState {
   earnDZD: (amount: number, xp: number, sourceId: string) => void;
@@ -497,16 +552,23 @@ export const useEconomyStore = create<EconomyStore>()(
       xp: 0,
       level: 1,
       transactions: [],
-      earnDZD: (amount, xp, sourceId) => { /* ... */ },
+      earnDZD: (amount, xp, sourceId) => {
+        /* ... */
+      },
       spendDZD: (amount, sourceId) => {
         if (get().balanceDZD < amount) return false;
         /* deduct and log */ return true;
       },
-      applyXPDelta: (xpDelta, sourceId) => { /* ... */ },
+      applyXPDelta: (xpDelta, sourceId) => {
+        /* ... */
+      },
       reset: () => set(INITIAL_ECONOMY_STATE),
     }),
-    { name: 'economy', storage: createJSONStorage(() => mmkvStorage) }
-  )
+    {
+      name: "kidinvest.economy", // AsyncStorage key
+      storage: createJSONStorage(() => AsyncStorage),
+    },
+  ),
 );
 ```
 
@@ -531,8 +593,8 @@ The app is fully playable with no network connection. Supabase is a cloud backup
 ### Read Path (App Launch)
 
 ```
-1. Read from MMKV (always)
-2. Hydrate Zustand stores
+1. Read from AsyncStorage via Zustand persist middleware (automatic on store hydration)
+2. Zustand stores rehydrate with persisted data before first render
 3. If user has supabaseUserId AND network available → background sync (non-blocking)
 ```
 
@@ -540,8 +602,8 @@ The app is fully playable with no network connection. Supabase is a cloud backup
 
 ```
 1. Write to Zustand store immediately (optimistic)
-2. Persist Zustand → MMKV synchronously via middleware
-3. If supabaseUserId exists → append mutation to SyncQueue (MMKV-backed)
+2. Zustand persist middleware writes to AsyncStorage asynchronously
+3. If supabaseUserId exists → append mutation to SyncQueue (AsyncStorage-backed)
 4. SyncEngine drains queue when network becomes available
 ```
 
@@ -550,16 +612,19 @@ The app is fully playable with no network connection. Supabase is a cloud backup
 ```typescript
 // src/systems/sync/SyncQueue.ts
 
+const SYNC_QUEUE_KEY = "kidinvest.syncQueue";
+
 export interface SyncMutation {
   id: string;
-  table: 'economy_snapshots' | 'progression_snapshots' | 'inventory_snapshots';
+  table: "economy_snapshots" | "progression_snapshots" | "inventory_snapshots";
   payload: Record<string, unknown>;
   timestamp: string;
   retryCount: number;
 }
 
-// The queue is a MMKV-backed array of SyncMutations.
-// SyncEngine replaces older mutations for the same table with the latest snapshot.
+// Stored as a JSON array in AsyncStorage under SYNC_QUEUE_KEY.
+// SyncEngine collapses older mutations for the same table into the latest snapshot
+// before pushing, so the queue never grows unbounded.
 // Conflict strategy: LAST_WRITE_WINS (local always wins — child's device is authoritative).
 ```
 
@@ -571,35 +636,65 @@ Local state **always wins** over remote state. When a child logs in on a new dev
 
 ## 8. Navigation Architecture
 
-Using Expo Router with the following route groups:
+The project uses Expo Router for file-based routing at the `src/app/` level, but the primary tab navigation is encapsulated in the `AppTabs` component (`src/components/app-tabs.tsx`), which is rendered by the root `_layout.tsx`. This is the established pattern — do not dissolve `AppTabs` into file-based route groups.
+
+### Route Structure
 
 ```
-/                           → Root layout: checks onboarding completion flag in MMKV
-  (onboarding)/             → Shown once; sets onboardingComplete flag on finish
-    language
-    avatar
-    profile
-  (main)/                   → Primary tab navigator
-    map                     ← Default tab
-    shop
-  (games)/                  → Modal stack, launched from map nodes
-    bubble-pop
-    maze
-    puzzle
-    memory-match
-    sorting
-  (auth)/                   → Optional, accessible from settings
-    login
-    register
+src/app/
+  _layout.tsx                 → Root: ThemeProvider + AnimatedSplashOverlay + AppTabs
+  index.tsx                   → Entry redirect (resolves to map tab or onboarding)
+
+src/components/
+  app-tabs.tsx                → Tab navigator: Map tab + Shop tab
+  app-tabs.web.tsx            → Web variant (keep in sync)
+```
+
+Game screens are pushed onto the **Map tab's internal stack navigator** inside `AppTabs`. They are not top-level Expo Router routes. This keeps the tab bar present during gameplay dismissal and allows the map to stay mounted underneath the game.
+
+```
+AppTabs
+├── Map Tab (Stack Navigator)
+│   ├── map.tsx               ← Default screen
+│   ├── bubble-pop.tsx        ← Pushed on node tap
+│   ├── maze.tsx
+│   ├── puzzle.tsx
+│   ├── memory-match.tsx
+│   └── sorting.tsx
+└── Shop Tab (Stack Navigator)
+    └── shop.tsx              ← Default screen
+```
+
+Onboarding screens are a **modal stack** presented over `AppTabs`:
+
+```
+src/app/
+  (onboarding)/
+    _layout.tsx               → Modal stack
+    language.tsx
+    avatar.tsx
+    profile.tsx
+```
+
+The onboarding gate and auth gate logic live in `AppTabs` (or a `SessionGate` wrapper inside it). They check AsyncStorage for `onboardingComplete` and `supabaseUserId` on mount, and conditionally present the onboarding modal.
+
+Auth screens are accessed from within the Shop tab via a settings icon:
+
+```
+src/app/
+  (auth)/
+    _layout.tsx
+    login.tsx
+    register.tsx
 ```
 
 ### Map ↔ Shop Transition (Priority Design)
 
 The tab bar between Map and Shop must feel **instant and contextual**. Implementation requirements:
 
-- Use a **custom tab bar** component (`src/components/ui/MainTabBar.tsx`) rendered as a persistent bottom bar on both screens.
+- The tab bar is defined inside `AppTabs` (`src/components/app-tabs.tsx`). Customize it there — not in `_layout.tsx`.
 - The Shop tab badge shows current DZD balance so the child always sees their wallet.
-- When returning from a game to the map, the `RewardPopup` component animates over the map screen using an Expo Router modal overlay — not a new route — so the map remains mounted underneath.
+- When returning from a game to the map, the `RewardPopup` component animates as an absolute overlay **within the Map stack screen** — not a new route — so the map remains mounted underneath.
 - Shared element transition: the `WalletDisplay` component appears identically in both the map header and the shop header. Use `Reanimated.SharedTransition` with a shared tag `wallet-display` to animate the balance number across the tab switch.
 
 ---
@@ -621,7 +716,7 @@ export interface GameConfig {
 
 export interface GameResult {
   success: boolean;
-  scorePercent: number;       // 0–100, used to scale reward
+  scorePercent: number; // 0–100, used to scale reward
   timeTakenMs: number;
   earnedDZD: number;
   earnedXP: number;
@@ -629,7 +724,7 @@ export interface GameResult {
 
 export interface BaseGameEngine {
   init(config: GameConfig): void;
-  getState(): unknown;        // Game-specific state, typed in subclass
+  getState(): unknown; // Game-specific state, typed in subclass
   tick(deltaMs: number): void;
   handleInput(event: GameInputEvent): void;
   isComplete(): boolean;
@@ -640,11 +735,11 @@ export interface BaseGameEngine {
 
 ### Difficulty Scaling Table
 
-| Difficulty | Trigger | Bubble Pop | Maze | Puzzle | Memory Match | Sorting |
-|---|---|---|---|---|---|---|
-| 1 | Nodes 1–5 | 30s, 8 bubbles | 5×5 grid | 9 pieces | 8 pairs | 6 items, 2 bins |
-| 2 | Nodes 6–12 | 20s, 12 bubbles | 7×7 grid | 16 pieces | 12 pairs | 10 items, 3 bins |
-| 3 | Nodes 13+ | 15s, 18 bubbles | 10×10 grid | 25 pieces | 16 pairs | 16 items, 4 bins |
+| Difficulty | Trigger    | Bubble Pop      | Maze       | Puzzle    | Memory Match | Sorting          |
+| ---------- | ---------- | --------------- | ---------- | --------- | ------------ | ---------------- |
+| 1          | Nodes 1–5  | 30s, 8 bubbles  | 5×5 grid   | 9 pieces  | 8 pairs      | 6 items, 2 bins  |
+| 2          | Nodes 6–12 | 20s, 12 bubbles | 7×7 grid   | 16 pieces | 12 pairs     | 10 items, 3 bins |
+| 3          | Nodes 13+  | 15s, 18 bubbles | 10×10 grid | 25 pieces | 16 pairs     | 16 items, 4 bins |
 
 Age modifier: if `playerAge <= 6`, always use difficulty 1 regardless of node position.
 
@@ -655,7 +750,7 @@ Age modifier: if `playerAge <= 6`, always use difficulty 1 regardless of node po
 
 export function calculateGameReward(
   node: MapNode,
-  scorePercent: number
+  scorePercent: number,
 ): { dzd: number; xp: number } {
   const baseDZD = node.reward.dzd;
   const baseXP = node.reward.xp;
@@ -692,16 +787,16 @@ User taps MapNode → progressionStore.canPlay(nodeId) check
 export const PRICING = {
   // Mini-game base rewards
   games: {
-    BUBBLE_POP:    { dzd: 50,  xp: 20 },
-    MAZE:          { dzd: 70,  xp: 30 },
-    PUZZLE:        { dzd: 60,  xp: 25 },
-    MEMORY_MATCH:  { dzd: 80,  xp: 35 },
-    SORTING:       { dzd: 55,  xp: 22 },
+    BUBBLE_POP: { dzd: 50, xp: 20 },
+    MAZE: { dzd: 70, xp: 30 },
+    PUZZLE: { dzd: 60, xp: 25 },
+    MEMORY_MATCH: { dzd: 80, xp: 35 },
+    SORTING: { dzd: 55, xp: 22 },
   },
   // Hard situation costs (illustrative; full list in EventRegistry)
   events: {
-    UMBRELLA:  { cost: 200 },
-    BACKPACK:  { cost: 500 },
+    UMBRELLA: { cost: 200 },
+    BACKPACK: { cost: 500 },
   },
   // XP thresholds per level
   xpLevels: [0, 100, 250, 500, 900, 1400, 2100, 3000],
@@ -710,14 +805,14 @@ export const PRICING = {
 
 ### Shop Item Price Tiers
 
-| Category | Examples | Price Range (DZD) |
-|---|---|---|
-| NEED – Food | Bread, fruit | 50–150 |
-| NEED – Clothing | Basic shirt, shoes | 200–400 |
-| NEED – School | Backpack, pencils | 400–600 |
-| DESIRE – Snacks | Candy, chips | 80–200 |
-| DESIRE – Fashion | Fancy hat, sunglasses | 300–700 |
-| DESIRE – Toys | Toy plane, ball | 500–1,200 |
+| Category         | Examples              | Price Range (DZD) |
+| ---------------- | --------------------- | ----------------- |
+| NEED – Food      | Bread, fruit          | 50–150            |
+| NEED – Clothing  | Basic shirt, shoes    | 200–400           |
+| NEED – School    | Backpack, pencils     | 400–600           |
+| DESIRE – Snacks  | Candy, chips          | 80–200            |
+| DESIRE – Fashion | Fancy hat, sunglasses | 300–700           |
+| DESIRE – Toys    | Toy plane, ball       | 500–1,200         |
 
 ### Economic Balance Invariant
 
@@ -736,58 +831,70 @@ Two events are defined initially. The registry is extensible — adding a new ev
 
 export const HARD_SITUATION_EVENTS: HardSituation[] = [
   {
-    id: 'RAINSTORM',
-    titleKey: 'events.rainstorm.title',
-    descriptionKey: 'events.rainstorm.description',
-    illustrationAsset: require('@/assets/images/events/rainstorm.svg'),
-    trigger: 'RANDOM_ON_MAP_ENTER',
+    id: "RAINSTORM",
+    titleKey: "events.rainstorm.title",
+    descriptionKey: "events.rainstorm.description",
+    illustrationAsset: require("@/assets/images/events/rainstorm.svg"),
+    trigger: "RANDOM_ON_MAP_ENTER",
     triggerConfig: { probability: 0.25, cooldownGames: 3 },
     choices: [
       {
-        id: 'BUY_UMBRELLA',
-        labelKey: 'events.rainstorm.choices.buy',
+        id: "BUY_UMBRELLA",
+        labelKey: "events.rainstorm.choices.buy",
         costDZD: 200,
         outcome: {
           xpDelta: 20,
           dzdDelta: 0,
-          feedbackTitleKey: 'events.rainstorm.outcome.bought.title',
-          feedbackBodyKey: 'events.rainstorm.outcome.bought.body',
-          feedbackSentiment: 'POSITIVE',
+          feedbackTitleKey: "events.rainstorm.outcome.bought.title",
+          feedbackBodyKey: "events.rainstorm.outcome.bought.body",
+          feedbackSentiment: "POSITIVE",
         },
       },
       {
-        id: 'SKIP_NO_MONEY',
-        labelKey: 'events.rainstorm.choices.skip',
+        id: "SKIP_NO_MONEY",
+        labelKey: "events.rainstorm.choices.skip",
         costDZD: 0,
         outcome: {
           xpDelta: -15,
           dzdDelta: 0,
-          feedbackTitleKey: 'events.rainstorm.outcome.skipped.title',
-          feedbackBodyKey: 'events.rainstorm.outcome.skipped.body',
-          feedbackSentiment: 'NEGATIVE',
+          feedbackTitleKey: "events.rainstorm.outcome.skipped.title",
+          feedbackBodyKey: "events.rainstorm.outcome.skipped.body",
+          feedbackSentiment: "NEGATIVE",
         },
       },
     ],
   },
   {
-    id: 'SCHOOL_ENTRY',
-    titleKey: 'events.school.title',
-    descriptionKey: 'events.school.description',
-    illustrationAsset: require('@/assets/images/events/school.svg'),
-    trigger: 'AFTER_N_GAMES',
+    id: "SCHOOL_ENTRY",
+    titleKey: "events.school.title",
+    descriptionKey: "events.school.description",
+    illustrationAsset: require("@/assets/images/events/school.svg"),
+    trigger: "AFTER_N_GAMES",
     triggerConfig: { n: 5 },
     choices: [
       {
-        id: 'BUY_BACKPACK',
-        labelKey: 'events.school.choices.backpack',
+        id: "BUY_BACKPACK",
+        labelKey: "events.school.choices.backpack",
         costDZD: 500,
-        outcome: { xpDelta: 40, dzdDelta: 0, feedbackTitleKey: '...', feedbackBodyKey: '...', feedbackSentiment: 'POSITIVE' },
+        outcome: {
+          xpDelta: 40,
+          dzdDelta: 0,
+          feedbackTitleKey: "...",
+          feedbackBodyKey: "...",
+          feedbackSentiment: "POSITIVE",
+        },
       },
       {
-        id: 'BUY_TOY_PLANE',
-        labelKey: 'events.school.choices.toyplane',
+        id: "BUY_TOY_PLANE",
+        labelKey: "events.school.choices.toyplane",
         costDZD: 500,
-        outcome: { xpDelta: -20, dzdDelta: 0, feedbackTitleKey: '...', feedbackBodyKey: '...', feedbackSentiment: 'NEGATIVE' },
+        outcome: {
+          xpDelta: -20,
+          dzdDelta: 0,
+          feedbackTitleKey: "...",
+          feedbackBodyKey: "...",
+          feedbackSentiment: "NEGATIVE",
+        },
       },
     ],
   },
@@ -823,7 +930,7 @@ The shop does **not** lecture. It teaches through natural consequences:
 
 - Items tagged `NEED` display a small green "حاجة / Besoin / Need" badge.
 - Items tagged `DESIRE` display a yellow "رغبة / Désir / Want" badge.
-- When a Hard Situation event fires after the child spent on Desires, the feedback message explicitly references what they bought: *"You spent your money on a toy plane. You didn't have enough for your backpack."*
+- When a Hard Situation event fires after the child spent on Desires, the feedback message explicitly references what they bought: _"You spent your money on a toy plane. You didn't have enough for your backpack."_
 - The `useHardSituation` hook reads recent `transactions` from `economyStore` to generate contextual feedback.
 
 ### Shop Item Unlock Logic
@@ -849,45 +956,131 @@ The avatar is built as layered SVG. The rendering order is:
 
 ## 13. Supabase Integration
 
+### Client Singleton — `src/utils/supabase.ts`
+
+The Supabase client is initialized **once** in `src/utils/supabase.ts` and imported wherever needed. This is the file already in the project. No other file may call `createClient`.
+
+```typescript
+// src/utils/supabase.ts — do not modify this initialization pattern
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createClient } from "@supabase/supabase-js";
+
+export const supabase = createClient(
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.EXPO_PUBLIC_SUPABASE_KEY!, // ← env var is KEY, not ANON_KEY
+  {
+    auth: {
+      storage: AsyncStorage, // Persist JWT session across app restarts
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false, // Required for React Native (no URL scheme parsing)
+    },
+  },
+);
+```
+
+> **Why `EXPO_PUBLIC_SUPABASE_KEY` and not `EXPO_PUBLIC_SUPABASE_ANON_KEY`?** The project's `.env` uses `EXPO_PUBLIC_SUPABASE_KEY`. The coding agent must use this exact name — do not rename it.
+
+> **Why AsyncStorage for auth session storage?** The Supabase auth SDK manages the JWT internally using whichever storage adapter is passed. AsyncStorage is the standard adapter for React Native and is already a project dependency. All game data (balance, progression, inventory) is also stored via AsyncStorage through the Zustand persist middleware, so there is a single consistent storage layer.
+
+Environment variables are defined in `.env.local` and exposed via the `EXPO_PUBLIC_` prefix (Expo SDK 55 standard):
+
+```
+# .env.local
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_KEY=your-anon-key
+```
+
 ### Auth Flow
 
 ```
 Guest mode (default):
   - supabaseUserId = undefined in playerStore
-  - All data stays in MMKV only
-  - No network calls
+  - All game data stays in MMKV only
+  - supabase.auth.getSession() returns null — no network calls made
 
-Account creation (optional):
-  1. User opens Auth screen from settings
-  2. Supabase email/OTP signup
-  3. On success: write supabaseUserId to playerStore
-  4. SyncEngine pushes all local snapshots to Supabase
-  5. Future launches: background sync on every app open (if online)
+Account creation (optional, from Settings):
+  1. User opens (auth)/register.tsx
+  2. Call supabase.auth.signUp({ email, password })
+  3. On success: write supabaseUserId to playerStore via MMKV
+  4. SyncEngine.pushAll() — uploads all local snapshots to Supabase
+  5. Future launches: SyncEngine runs in background if session exists
 
 Device recovery:
-  1. Child logs in on new device
-  2. SyncEngine pulls snapshots from Supabase
-  3. App presents "Continue as [Name]?" confirmation
-  4. On confirm: overwrites local MMKV with cloud data
+  1. User opens (auth)/login.tsx on new device
+  2. Call supabase.auth.signInWithPassword({ email, password })
+  3. SyncEngine.pullAll() — fetches snapshots from Supabase
+  4. If local MMKV has no profile: apply cloud data silently
+  5. If local MMKV has existing profile: show "Continue as [Name]?" prompt
+  6. On confirm: overwrite MMKV with cloud data and reload stores
 ```
 
 ### Service Layer Pattern
 
-All Supabase calls are isolated inside `src/services/supabase/`. No component or store may import from `@supabase/supabase-js` directly. This ensures Supabase can be swapped out without touching UI or business logic.
+All Supabase table queries are isolated inside `src/services/supabase/`. Components and stores import only from this layer — never from `src/utils/supabase.ts` directly. The client singleton is an internal detail of the service layer.
 
 ```typescript
 // src/services/supabase/economyService.ts
 
+import { supabase } from "@/utils/supabase";
+import type { EconomyState } from "@/types/economy.types";
+
 export async function pushEconomySnapshot(
   profileId: string,
-  snapshot: EconomyState
+  snapshot: EconomyState,
 ): Promise<void> {
   const { error } = await supabase
-    .from('economy_snapshots')
+    .from("economy_snapshots")
     .upsert({ profile_id: profileId, ...serializeEconomy(snapshot) });
   if (error) throw new SupabaseSyncError(error.message);
 }
+
+export async function pullEconomySnapshot(
+  profileId: string,
+): Promise<EconomyState | null> {
+  const { data, error } = await supabase
+    .from("economy_snapshots")
+    .select("*")
+    .eq("profile_id", profileId)
+    .single();
+  if (error || !data) return null;
+  return deserializeEconomy(data);
+}
 ```
+
+### Auth Helper — `src/services/supabase/auth.ts`
+
+```typescript
+// src/services/supabase/auth.ts
+// Wraps supabase.auth.* so calling code never imports the client directly.
+
+import { supabase } from "@/utils/supabase";
+
+export async function signUp(email: string, password: string) {
+  return supabase.auth.signUp({ email, password });
+}
+
+export async function signIn(email: string, password: string) {
+  return supabase.auth.signInWithPassword({ email, password });
+}
+
+export async function signOut() {
+  return supabase.auth.signOut();
+}
+
+export async function getSession() {
+  return supabase.auth.getSession();
+}
+
+export function onAuthStateChange(
+  callback: Parameters<typeof supabase.auth.onAuthStateChange>[0],
+) {
+  return supabase.auth.onAuthStateChange(callback);
+}
+```
+
+````
 
 ---
 
@@ -920,7 +1113,7 @@ All user-visible strings live in `src/locales/{ar,fr,en}.json`. The coding agent
     }
   }
 }
-```
+````
 
 ### RTL Support
 
@@ -934,8 +1127,8 @@ All user-visible strings live in `src/locales/{ar,fr,en}.json`. The coding agent
 // src/utils/formatDZD.ts
 export function formatDZD(amount: number, locale: Language): string {
   const formatted = new Intl.NumberFormat(
-    locale === 'ar' ? 'ar-DZ' : locale === 'fr' ? 'fr-DZ' : 'en-DZ',
-    { maximumFractionDigits: 0 }
+    locale === "ar" ? "ar-DZ" : locale === "fr" ? "fr-DZ" : "en-DZ",
+    { maximumFractionDigits: 0 },
   ).format(amount);
   return `${formatted} د.ج`;
 }
@@ -949,14 +1142,14 @@ Stage 2 (business simulation, ages 10–14) must not require restructuring the e
 
 ### What Stage 1 must expose (do not break later)
 
-| Contract | Implementation |
-|---|---|
-| `EconomyEngine` is stateless and injectable | Takes state as parameter, returns new state — no internal singletons |
-| `BaseGameEngine` interface is stable | Stage 2 mini-games (e.g., negotiation mini-game) implement the same interface |
-| `MapConfig.ts` uses a typed node registry | Stage 2 adds a second map config file; the router reads stage from `playerStore.stage` |
-| `ShopItem.category` uses a union type | Stage 2 may add `'INVESTMENT'` as a new category — the union is already typed as `ItemCategory` |
-| `PlayerProfile` has a `stage` field | Defaults to `1`; Stage 2 unlocks when a progression milestone is reached |
-| Route groups are stage-namespaced | `(main)/` stays Stage 1; Stage 2 adds `(main-s2)/` as a parallel tab layout |
+| Contract                                    | Implementation                                                                                  |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `EconomyEngine` is stateless and injectable | Takes state as parameter, returns new state — no internal singletons                            |
+| `BaseGameEngine` interface is stable        | Stage 2 mini-games (e.g., negotiation mini-game) implement the same interface                   |
+| `MapConfig.ts` uses a typed node registry   | Stage 2 adds a second map config file; the router reads stage from `playerStore.stage`          |
+| `ShopItem.category` uses a union type       | Stage 2 may add `'INVESTMENT'` as a new category — the union is already typed as `ItemCategory` |
+| `PlayerProfile` has a `stage` field         | Defaults to `1`; Stage 2 unlocks when a progression milestone is reached                        |
+| Route groups are stage-namespaced           | `(main)/` stays Stage 1; Stage 2 adds `(main-s2)/` as a parallel tab layout                     |
 
 ### Stubbed Stage 2 Types
 
@@ -967,7 +1160,7 @@ Stage 2 (business simulation, ages 10–14) must not require restructuring the e
 export interface Business {
   id: string;
   name: string;
-  type: 'SHOP' | 'FARM' | 'SERVICE';
+  type: "SHOP" | "FARM" | "SERVICE";
   revenue: number;
   expenses: number;
 }
@@ -975,7 +1168,7 @@ export interface Business {
 export interface InvestmentOption {
   id: string;
   name: string;
-  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
   expectedReturnPercent: number;
 }
 ```
@@ -986,13 +1179,14 @@ export interface InvestmentOption {
 
 ### Phase 0 — Foundation (Week 1)
 
-- [ ] Expo project init with SDK 55, TypeScript strict, Expo Router
-- [ ] MMKV integration + `localRepository.ts`
-- [ ] Zustand stores scaffolded with MMKV persistence
-- [ ] Supabase project creation + RLS migration
+- [ ] Confirm `app.json` router root points to `src/app`
+- [ ] AsyncStorage typed helpers (`src/services/storage/asyncStorage.ts`)
+- [ ] Zustand stores scaffolded with AsyncStorage persist middleware
+- [ ] Supabase project creation + RLS migration (`supabase/migrations/001_initial_schema.sql`)
 - [ ] i18n setup with all three locale files (placeholder strings)
 - [ ] `formatDZD` utility + RTL helper
-- [ ] Design tokens (`colors.ts`, `typography.ts`)
+- [ ] Design tokens (`src/constants/colors.ts`, `typography.ts`)
+- [ ] `src/constants/theme.ts` extended with game-specific tokens (node colors, XP bar, shop badges)
 
 ### Phase 1 — Onboarding (Week 1–2)
 
@@ -1010,7 +1204,7 @@ export interface InvestmentOption {
 - [ ] `MapPath.tsx` — path connecting nodes
 - [ ] `progressionStore` + `ProgressionEngine`
 - [ ] `WalletDisplay` and `XPBar` in map header
-- [ ] Custom tab bar with DZD balance badge
+- [ ] DZD balance badge on Shop tab inside `AppTabs` custom tab bar
 
 ### Phase 3 — Economy & Shop (Week 3–4) ⬅ Priority alongside Phase 2
 
@@ -1068,14 +1262,14 @@ export interface InvestmentOption {
 
 ### File Naming
 
-| Type | Convention | Example |
-|---|---|---|
-| React component | PascalCase `.tsx` | `ShopItemCard.tsx` |
-| Hook | camelCase, `use` prefix | `useEconomy.ts` |
-| Engine/system | PascalCase, `Engine` suffix | `EconomyEngine.ts` |
-| Store | camelCase, `Store` suffix | `economyStore.ts` |
-| Type file | camelCase, `.types.ts` | `economy.types.ts` |
-| Locale key | dot-notation, snake_case segments | `events.rainstorm.title` |
+| Type            | Convention                        | Example                  |
+| --------------- | --------------------------------- | ------------------------ |
+| React component | PascalCase `.tsx`                 | `ShopItemCard.tsx`       |
+| Hook            | camelCase, `use` prefix           | `useEconomy.ts`          |
+| Engine/system   | PascalCase, `Engine` suffix       | `EconomyEngine.ts`       |
+| Store           | camelCase, `Store` suffix         | `economyStore.ts`        |
+| Type file       | camelCase, `.types.ts`            | `economy.types.ts`       |
+| Locale key      | dot-notation, snake_case segments | `events.rainstorm.title` |
 
 ### TypeScript Rules
 
@@ -1089,6 +1283,26 @@ export interface InvestmentOption {
 - No direct store imports in components. Use the corresponding hook (`useEconomy`, not `useEconomyStore`).
 - Every component that touches DZD values must use `formatDZD(amount, language)` — never raw `toString()`.
 
+### Import Conventions
+
+- Always use the `@/` path alias (configured in `tsconfig.json`) for imports across `src/`. Never use relative `../../` paths that cross more than one directory level.
+  - ✅ `import { supabase } from '@/utils/supabase'`
+  - ❌ `import { supabase } from '../../utils/supabase'`
+- Within the same folder, relative imports (`./sibling`) are acceptable.
+
+### Import Conventions
+
+- Always use the `@/` path alias for imports across `src/`. Never use relative `../../` paths crossing more than one directory level.
+  - ✅ `import { supabase } from '@/utils/supabase'`
+  - ❌ `import { supabase } from '../../utils/supabase'`
+- Within the same folder, relative imports (`./sibling`) are acceptable.
+
+### AsyncStorage Awareness
+
+- Zustand's `persist` middleware with AsyncStorage is **asynchronous**. Stores are not hydrated synchronously on first render.
+- Every screen that depends on persisted store data must handle the hydration state. Use a `useStoreHydration()` hook that checks `useStore.persist.hasHydrated()` and shows a loading state until true.
+- The `sessionStore` is the only store that is **not** persisted — it holds transient runtime state (active game session, pending hard situation events) and resets on every app restart.
+
 ### Engine Rules
 
 - All game engines are **pure classes** — no React imports, no store imports.
@@ -1097,4 +1311,4 @@ export interface InvestmentOption {
 
 ---
 
-*End of ARCHITECTURE.md — Last updated for KIDINVEST Stage 1, targeting Expo SDK 55.*
+_End of ARCHITECTURE.md — Last updated for KIDINVEST Stage 1, targeting Expo SDK 55._

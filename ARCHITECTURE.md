@@ -1080,8 +1080,6 @@ export function onAuthStateChange(
 }
 ```
 
-````
-
 ---
 
 ## 14. Localization
@@ -1113,7 +1111,7 @@ All user-visible strings live in `src/locales/{ar,fr,en}.json`. The coding agent
     }
   }
 }
-````
+```
 
 ### RTL Support
 

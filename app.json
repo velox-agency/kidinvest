@@ -36,7 +36,8 @@
             "image": "./assets/images/light-icon-logoKidInvest-.png"
           }
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

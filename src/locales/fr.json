@@ -1,0 +1,35 @@
+{
+  "onboarding": {
+    "language": { "title": "Choisissez votre langue" },
+    "avatar": { "title": "Choisissez votre personnage" },
+    "profile": {
+      "nameLabel": "Quel est votre nom ?",
+      "agePlaceholder": "Votre âge"
+    }
+  },
+  "map": {
+    "title": "L'île de l'argent",
+    "locked": "Verrouillé"
+  },
+  "shop": {
+    "title": "Boutique d'avatar",
+    "balance": "Votre solde: {{amount}} DZD",
+    "need": "Besoin",
+    "desire": "Désir"
+  },
+  "home": {
+    "title": "Accueil",
+    "switch_language": "Changer la langue"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "games": "Jeux",
+    "wallet": "Portefeuille"
+  },
+  "games": {
+    "title": "Jeux"
+  },
+  "wallet": {
+    "title": "Portefeuille"
+  }
+}

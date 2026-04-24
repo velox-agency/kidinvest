@@ -1,0 +1,32 @@
+{
+  "onboarding": {
+    "language": { "title": "اختر لغتك" },
+    "avatar": { "title": "اختر شخصيتك" },
+    "profile": { "nameLabel": "ما اسمك؟", "agePlaceholder": "عمرك" }
+  },
+  "map": {
+    "title": "جزيرة المال",
+    "locked": "مغلق"
+  },
+  "shop": {
+    "title": "متجر الشخصية",
+    "balance": "رصيدك: {{amount}} د.ج",
+    "need": "حاجة",
+    "desire": "رغبة"
+  },
+  "home": {
+    "title": "الصفحة الرئيسية",
+    "switch_language": "تغيير اللغة"
+  },
+  "tabs": {
+    "home": "الرئيسية",
+    "games": "الألعاب",
+    "wallet": "المحفظة"
+  },
+  "games": {
+    "title": "الألعاب"
+  },
+  "wallet": {
+    "title": "المحفظة"
+  }
+}

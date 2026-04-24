@@ -1,0 +1,35 @@
+{
+  "onboarding": {
+    "language": { "title": "Choose your language" },
+    "avatar": { "title": "Choose your character" },
+    "profile": {
+      "nameLabel": "What's your name?",
+      "agePlaceholder": "Your age"
+    }
+  },
+  "map": {
+    "title": "Money Island",
+    "locked": "Locked"
+  },
+  "shop": {
+    "title": "Avatar Shop",
+    "balance": "Balance: {{amount}} DZD",
+    "need": "Need",
+    "desire": "Want"
+  },
+  "home": {
+    "title": "Home",
+    "switch_language": "Switch Language"
+  },
+  "tabs": {
+    "home": "Home",
+    "games": "Games",
+    "wallet": "Wallet"
+  },
+  "games": {
+    "title": "Games"
+  },
+  "wallet": {
+    "title": "Wallet"
+  }
+}

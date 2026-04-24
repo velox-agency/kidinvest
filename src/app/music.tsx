@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 
-export default function GamesScreen() {
+export default function MusicScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const colors = Colors[colorScheme];
@@ -13,7 +13,7 @@ export default function GamesScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.card, { backgroundColor: colors.backgroundElement, borderColor: colors.backgroundSelected }]}>
-          <Text style={[styles.title, { color: colors.text }]}>{t('games.title')}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{t('music.title')}</Text>
         </View>
       </SafeAreaView>
     </View>

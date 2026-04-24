@@ -18,8 +18,24 @@
     "desire": "Désir"
   },
   "home": {
-    "title": "Accueil",
-    "switch_language": "Changer la langue"
+    "welcomeTitle": "Bon retour",
+    "welcomeSubtitle": "Fais grandir tes compétences d’argent, étape par étape.",
+    "level": "Niveau",
+    "coins": "Pièces",
+    "gamesTitle": "Jeux",
+    "gamesSubtitle": "Joue à des défis rapides et gagne des récompenses.",
+    "playNow": "Jouer maintenant",
+    "musicTitle": "Musique",
+    "musicSubtitle": "Profite d’une ambiance douce pour rester concentré.",
+    "listenNow": "Écouter maintenant",
+    "questTitle": "Progression de la quête",
+    "switchLanguage": "Changer la langue",
+    "steps": {
+      "start": "Départ",
+      "firstPiggyBank": "Première tirelire",
+      "merchant": "Rencontrer le marchand",
+      "expert": "Expert de l’argent"
+    }
   },
   "tabs": {
     "home": "Accueil",
@@ -28,6 +44,9 @@
   },
   "games": {
     "title": "Jeux"
+  },
+  "music": {
+    "title": "Musique"
   },
   "wallet": {
     "title": "Portefeuille"

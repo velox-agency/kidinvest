@@ -15,8 +15,24 @@
     "desire": "رغبة"
   },
   "home": {
-    "title": "الصفحة الرئيسية",
-    "switch_language": "تغيير اللغة"
+    "welcomeTitle": "مرحباً بعودتك",
+    "welcomeSubtitle": "طوّر مهاراتك المالية خطوة بخطوة.",
+    "level": "المستوى",
+    "coins": "العملات",
+    "gamesTitle": "الألعاب",
+    "gamesSubtitle": "تحديات سريعة تمنحك مكافآت جميلة.",
+    "playNow": "ابدأ الآن",
+    "musicTitle": "الموسيقى",
+    "musicSubtitle": "استمع لإيقاع هادئ يساعد على التركيز.",
+    "listenNow": "استمع الآن",
+    "questTitle": "تقدّم المهمة",
+    "switchLanguage": "تغيير اللغة",
+    "steps": {
+      "start": "البداية",
+      "firstPiggyBank": "أول حصالة",
+      "merchant": "لقاء التاجر",
+      "expert": "خبير المال"
+    }
   },
   "tabs": {
     "home": "الرئيسية",
@@ -25,6 +41,9 @@
   },
   "games": {
     "title": "الألعاب"
+  },
+  "music": {
+    "title": "الموسيقى"
   },
   "wallet": {
     "title": "المحفظة"

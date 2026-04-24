@@ -18,8 +18,24 @@
     "desire": "Want"
   },
   "home": {
-    "title": "Home",
-    "switch_language": "Switch Language"
+    "welcomeTitle": "Welcome back",
+    "welcomeSubtitle": "Keep growing your money skills, one step at a time.",
+    "level": "Level",
+    "coins": "Coins",
+    "gamesTitle": "Games",
+    "gamesSubtitle": "Play quick challenges and earn rewards.",
+    "playNow": "Play now",
+    "musicTitle": "Music",
+    "musicSubtitle": "Tap into calm focus with a soft soundtrack.",
+    "listenNow": "Listen now",
+    "questTitle": "Quest progress",
+    "switchLanguage": "Switch language",
+    "steps": {
+      "start": "Start",
+      "firstPiggyBank": "First piggy bank",
+      "merchant": "Meet the merchant",
+      "expert": "Money expert"
+    }
   },
   "tabs": {
     "home": "Home",
@@ -28,6 +44,9 @@
   },
   "games": {
     "title": "Games"
+  },
+  "music": {
+    "title": "Music"
   },
   "wallet": {
     "title": "Wallet"

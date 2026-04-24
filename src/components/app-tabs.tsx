@@ -35,6 +35,11 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>{t("tabs.wallet")}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon md={"wallet"} renderingMode="template" />
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="music">
+        <NativeTabs.Trigger.Label>{t("music.title")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon md={"music_note"} renderingMode="template" />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

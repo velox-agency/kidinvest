@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameCard } from '@/components/home/game-card';
@@ -43,7 +43,12 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}> 
+    <ImageBackground
+      source={require('@/assets/images/bg/Gemini_Generated_Image_kqxo49kqxo49kqxo (1).png')}
+      resizeMode="cover"
+      blurRadius={5}
+      style={styles.screen}>
+      <View style={styles.backgroundOverlay} />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={[
@@ -98,13 +103,17 @@ export default function HomeScreen() {
           <QuestProgress colorScheme={colorScheme} steps={QUEST_STEPS} />
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  backgroundOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(11, 15, 26, 0.32)',
   },
   safeArea: {
     flex: 1,

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GameCard } from '@/components/home/game-card';
@@ -35,7 +35,6 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const colors = Colors[colorScheme];
-  const isRTL = I18nManager.isRTL;
 
   const handleReset = async () => {
     onboardingState.name = '';
@@ -74,22 +73,26 @@ export default function HomeScreen() {
           <XPProgressCard level={3} currentXP={300} maxXP={600} />
 
           <View style={styles.statsRow}> 
-            <CoinsCard value={120} />
             <LevelCard level={t('level.beginner')} />
+            <CoinsCard value={120} />
           </View>
 
-          <View style={[styles.actionsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}> 
-            <GameCard
-              title={t('games.title')}
-              description={t('games.description')}
-              onPress={() => router.push('/games')}
-            />
+          <View style={styles.actionsColumn}>
+            <View style={styles.actionRow}>
+              <GameCard
+                title={t('games.title')}
+                description={t('games.description')}
+                onPress={() => router.push('/games')}
+              />
+            </View>
 
-            <MusicCard
-              title={t('music.title')}
-              description={t('music.description')}
-              onPress={() => router.push('/music')}
-            />
+            <View style={styles.actionRow}>
+              <MusicCard
+                title={t('music.title')}
+                description={t('music.description')}
+                onPress={() => router.push('/music')}
+              />
+            </View>
           </View>
 
           <QuestProgress colorScheme={colorScheme} steps={QUEST_STEPS} />
@@ -116,16 +119,18 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: Spacing.three,
     alignItems: 'stretch',
     width: '100%',
   },
-  actionsRow: {
-    gap: Spacing.three,
-    alignItems: 'stretch',
+  actionsColumn: {
     width: '100%',
+    gap: Spacing.three,
+  },
+  actionRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'stretch',
   },
   resetButton: {
     borderWidth: 1,

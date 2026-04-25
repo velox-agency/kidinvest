@@ -126,7 +126,7 @@ export function XPProgressCard({ level, currentXP, maxXP }: XPProgressCardProps)
 const styles = StyleSheet.create({
   cardShell: {
     width: '100%',
-    minHeight: 164,
+    minHeight: 100,
     borderRadius: 26,
     shadowColor: '#FACC15',
     shadowOpacity: 0.24,

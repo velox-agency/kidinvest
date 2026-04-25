@@ -56,10 +56,12 @@
     "wallet": "Portefeuille"
   },
   "games": {
-    "title": "Jeux"
+    "title": "Jeux",
+    "description": "Relevez des défis rapides et gagnez des récompenses."
   },
   "music": {
-    "title": "Musique"
+    "title": "Musique",
+    "description": "Plonge dans une concentration plus douce avec une bande-son apaisante."
   },
   "wallet": {
     "title": "Portefeuille"

@@ -56,10 +56,12 @@
     "wallet": "Wallet"
   },
   "games": {
-    "title": "Games"
+    "title": "Games",
+    "description": "Compete in quick challenges and earn rewards."
   },
   "music": {
-    "title": "Music"
+    "title": "Music",
+    "description": "Tap into a calmer focus with a soft soundtrack."
   },
   "wallet": {
     "title": "Wallet"

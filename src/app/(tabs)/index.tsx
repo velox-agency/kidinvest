@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { I18nManager, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActionCard } from '@/components/home/action-card';
+import { GameCard } from '@/components/home/game-card';
 import { HomeHeader } from '@/components/home/home-header';
+import { MusicCard } from '@/components/home/music-card';
 import { QuestProgress, type QuestStep } from '@/components/home/quest-progress';
 import { StatCard } from '@/components/home/stat-card';
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -83,22 +84,16 @@ export default function HomeScreen() {
             />
           </View>
 
-          <View style={[styles.actionsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-            <ActionCard
-              colorScheme={colorScheme}
-              accent="green"
-              title={t('home.gamesTitle')}
-              subtitle={t('home.gamesSubtitle')}
-              buttonLabel={t('home.playNow')}
+          <View style={[styles.actionsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}> 
+            <GameCard
+              title={t('games.title')}
+              description={t('games.description')}
               onPress={() => router.push('/games')}
             />
 
-            <ActionCard
-              colorScheme={colorScheme}
-              accent="yellow"
-              title={t('home.musicTitle')}
-              subtitle={t('home.musicSubtitle')}
-              buttonLabel={t('home.listenNow')}
+            <MusicCard
+              title={t('music.title')}
+              description={t('music.description')}
               onPress={() => router.push('/music')}
             />
           </View>

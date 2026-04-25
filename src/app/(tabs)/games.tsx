@@ -1,22 +1,24 @@
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 
 export default function GamesScreen() {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
-  const colors = Colors[colorScheme];
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}> 
+    <ImageBackground
+      source={require('@/assets/images/bg/gamemap.png')}
+      resizeMode="cover"
+      style={styles.screen}>
+      <View style={styles.overlay} />
       <SafeAreaView style={styles.safeArea}>
-        <View style={[styles.card, { backgroundColor: colors.backgroundElement, borderColor: colors.backgroundSelected }]}>
-          <Text style={[styles.title, { color: colors.text }]}>{t('games.title')}</Text>
+        <View style={styles.badge}>
+          <Text style={styles.title}>{t('games.title')}</Text>
         </View>
       </SafeAreaView>
-    </View>
+    </ImageBackground>
   );
 }
 
@@ -24,26 +26,28 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(11, 15, 26, 0.16)',
+  },
   safeArea: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.four,
   },
-  card: {
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    borderRadius: 28,
+  badge: {
+    borderRadius: 999,
     borderWidth: 1,
-    padding: Spacing.five,
+    borderColor: 'rgba(255,255,255,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.28)',
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 2,
   },
   title: {
+    color: '#FFFFFF',
     fontSize: 24,
     fontWeight: '700',
     letterSpacing: -0.2,

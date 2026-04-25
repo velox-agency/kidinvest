@@ -50,6 +50,17 @@
       "expert": "Expert de l’argent"
     }
   },
+  "cards": {
+    "coins": "PIÈCES",
+    "level": "NIVEAU"
+  },
+  "level": {
+    "beginner": "Débutant"
+  },
+  "xp": {
+    "title": "Mission niveau {{level}}",
+    "progress": "{{current}} / {{max}} XP"
+  },
   "tabs": {
     "home": "Accueil",
     "games": "Jeux",

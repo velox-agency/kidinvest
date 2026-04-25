@@ -50,6 +50,17 @@
       "expert": "خبير المال"
     }
   },
+  "cards": {
+    "coins": "عملات",
+    "level": "المستوى"
+  },
+  "level": {
+    "beginner": "مبتدئ"
+  },
+  "xp": {
+    "title": "مهمة المستوى {{level}}",
+    "progress": "{{current}} / {{max}} XP"
+  },
   "tabs": {
     "home": "الرئيسية",
     "games": "الألعاب",

@@ -50,6 +50,17 @@
       "expert": "Money expert"
     }
   },
+  "cards": {
+    "coins": "Coins",
+    "level": "Level"
+  },
+  "level": {
+    "beginner": "Beginner"
+  },
+  "xp": {
+    "title": "Level {{level}} mission",
+    "progress": "{{current}} / {{max}} XP"
+  },
   "tabs": {
     "home": "Home",
     "games": "Games",

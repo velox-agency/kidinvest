@@ -99,6 +99,7 @@ export default function TabLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="level/[id]" />
         </Stack>
         {needsOnboarding ? <Redirect href="/onboarding" /> : null}
         {!splashDone && (

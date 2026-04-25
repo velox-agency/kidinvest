@@ -41,8 +41,8 @@ export const setupI18n = async () => {
 
     try {
       await Updates.reloadAsync();
-    } catch (e) {
-      console.log('Update reload failed, requires manual reload if in dev mode', e);
+    } catch {
+      // Ignore reload failures in environments where immediate runtime reload is unavailable.
     }
   }
 };
@@ -58,8 +58,8 @@ export const changeLanguage = async (lang: 'ar' | 'en' | 'fr') => {
     I18nManager.forceRTL(isRTL);
     try {
       await Updates.reloadAsync();
-    } catch (e) {
-      console.log('Update reload failed', e);
+    } catch {
+      // Ignore reload failures in environments where immediate runtime reload is unavailable.
     }
   }
 };

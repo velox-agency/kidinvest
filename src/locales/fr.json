@@ -1,11 +1,24 @@
 {
   "onboarding": {
-    "language": { "title": "Choisissez votre langue" },
-    "avatar": { "title": "Choisissez votre personnage" },
-    "profile": {
-      "nameLabel": "Quel est votre nom ?",
-      "agePlaceholder": "Votre âge"
-    }
+    "welcomeTitle": "Bienvenue ! 👋",
+    "welcomeSubtitle": "Choisis ton personnage et entre ton prénom",
+    "girl": "Fille",
+    "boy": "Garçon",
+    "namePlaceholder": "Écris ton prénom ici...",
+    "next": "Suivant",
+    "chooseLanguage": "Choisis ta langue",
+    "confirm": "Confirmer le choix",
+    "languageNote": "Tu peux changer la langue plus tard dans les paramètres",
+    "arabicLabel": "Arabe",
+    "frenchLabel": "Français",
+    "englishLabel": "Anglais",
+    "arabicNative": "العربية",
+    "frenchNative": "Français",
+    "englishNative": "English",
+    "ageTitle": "Quel âge as-tu ?",
+    "ageSubtitle": "Nous allons préparer une expérience adaptée à ton âge",
+    "years": "ans",
+    "reset": "Réinitialiser le prénom et l'âge"
   },
   "map": {
     "title": "L'île de l'argent",
@@ -18,8 +31,24 @@
     "desire": "Désir"
   },
   "home": {
-    "title": "Accueil",
-    "switch_language": "Changer la langue"
+    "welcomeTitle": "Bon retour",
+    "welcomeSubtitle": "Fais grandir tes compétences d’argent, étape par étape.",
+    "level": "Niveau",
+    "coins": "Pièces",
+    "gamesTitle": "Jeux",
+    "gamesSubtitle": "Joue à des défis rapides et gagne des récompenses.",
+    "playNow": "Jouer maintenant",
+    "musicTitle": "Musique",
+    "musicSubtitle": "Profite d’une ambiance douce pour rester concentré.",
+    "listenNow": "Écouter maintenant",
+    "questTitle": "Progression de la quête",
+    "switchLanguage": "Changer la langue",
+    "steps": {
+      "start": "Départ",
+      "firstPiggyBank": "Première tirelire",
+      "merchant": "Rencontrer le marchand",
+      "expert": "Expert de l’argent"
+    }
   },
   "tabs": {
     "home": "Accueil",
@@ -28,6 +57,9 @@
   },
   "games": {
     "title": "Jeux"
+  },
+  "music": {
+    "title": "Musique"
   },
   "wallet": {
     "title": "Portefeuille"

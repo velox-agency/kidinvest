@@ -1,8 +1,24 @@
 {
   "onboarding": {
-    "language": { "title": "اختر لغتك" },
-    "avatar": { "title": "اختر شخصيتك" },
-    "profile": { "nameLabel": "ما اسمك؟", "agePlaceholder": "عمرك" }
+    "welcomeTitle": "مرحباً بك! 👋",
+    "welcomeSubtitle": "اختر شخصيتك وأدخل اسمك",
+    "girl": "بنت",
+    "boy": "ولد",
+    "namePlaceholder": "اكتب اسمك هنا...",
+    "next": "التالي",
+    "chooseLanguage": "اختر لغتك",
+    "confirm": "تأكيد الاختيار",
+    "languageNote": "يمكنك تغيير اللغة لاحقاً من الإعدادات",
+    "arabicLabel": "العربية",
+    "frenchLabel": "الفرنسية",
+    "englishLabel": "الإنجليزية",
+    "arabicNative": "العربية",
+    "frenchNative": "Français",
+    "englishNative": "English",
+    "ageTitle": "كم عمرك؟",
+    "ageSubtitle": "سنحضّر لك تجربة تناسب عمرك",
+    "years": "سنة",
+    "reset": "إعادة تعيين الاسم والعمر"
   },
   "map": {
     "title": "جزيرة المال",
@@ -15,8 +31,24 @@
     "desire": "رغبة"
   },
   "home": {
-    "title": "الصفحة الرئيسية",
-    "switch_language": "تغيير اللغة"
+    "welcomeTitle": "مرحباً بعودتك",
+    "welcomeSubtitle": "طوّر مهاراتك المالية خطوة بخطوة.",
+    "level": "المستوى",
+    "coins": "العملات",
+    "gamesTitle": "الألعاب",
+    "gamesSubtitle": "تحديات سريعة تمنحك مكافآت جميلة.",
+    "playNow": "ابدأ الآن",
+    "musicTitle": "الموسيقى",
+    "musicSubtitle": "استمع لإيقاع هادئ يساعد على التركيز.",
+    "listenNow": "استمع الآن",
+    "questTitle": "تقدّم المهمة",
+    "switchLanguage": "تغيير اللغة",
+    "steps": {
+      "start": "البداية",
+      "firstPiggyBank": "أول حصالة",
+      "merchant": "لقاء التاجر",
+      "expert": "خبير المال"
+    }
   },
   "tabs": {
     "home": "الرئيسية",
@@ -25,6 +57,9 @@
   },
   "games": {
     "title": "الألعاب"
+  },
+  "music": {
+    "title": "الموسيقى"
   },
   "wallet": {
     "title": "المحفظة"

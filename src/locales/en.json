@@ -1,11 +1,24 @@
 {
   "onboarding": {
-    "language": { "title": "Choose your language" },
-    "avatar": { "title": "Choose your character" },
-    "profile": {
-      "nameLabel": "What's your name?",
-      "agePlaceholder": "Your age"
-    }
+    "welcomeTitle": "Welcome! 👋",
+    "welcomeSubtitle": "Choose your character and enter your name",
+    "girl": "Girl",
+    "boy": "Boy",
+    "namePlaceholder": "Write your name here...",
+    "next": "Next",
+    "chooseLanguage": "Choose your language",
+    "confirm": "Confirm selection",
+    "languageNote": "You can change language later from settings",
+    "arabicLabel": "Arabic",
+    "frenchLabel": "French",
+    "englishLabel": "English",
+    "arabicNative": "العربية",
+    "frenchNative": "Français",
+    "englishNative": "English",
+    "ageTitle": "How old are you?",
+    "ageSubtitle": "We will prepare an experience that fits your age",
+    "years": "Years",
+    "reset": "Reset name and age"
   },
   "map": {
     "title": "Money Island",
@@ -18,8 +31,24 @@
     "desire": "Want"
   },
   "home": {
-    "title": "Home",
-    "switch_language": "Switch Language"
+    "welcomeTitle": "Welcome back",
+    "welcomeSubtitle": "Keep growing your money skills, one step at a time.",
+    "level": "Level",
+    "coins": "Coins",
+    "gamesTitle": "Games",
+    "gamesSubtitle": "Play quick challenges and earn rewards.",
+    "playNow": "Play now",
+    "musicTitle": "Music",
+    "musicSubtitle": "Tap into calm focus with a soft soundtrack.",
+    "listenNow": "Listen now",
+    "questTitle": "Quest progress",
+    "switchLanguage": "Switch language",
+    "steps": {
+      "start": "Start",
+      "firstPiggyBank": "First piggy bank",
+      "merchant": "Meet the merchant",
+      "expert": "Money expert"
+    }
   },
   "tabs": {
     "home": "Home",
@@ -28,6 +57,9 @@
   },
   "games": {
     "title": "Games"
+  },
+  "music": {
+    "title": "Music"
   },
   "wallet": {
     "title": "Wallet"

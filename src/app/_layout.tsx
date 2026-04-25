@@ -5,12 +5,11 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { Asset } from "expo-asset";
-import { Slot, router, usePathname } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { useColorScheme } from "react-native";
 
-import AppTabs from "@/components/app-tabs";
 import { AppSplashScreen } from "@/components/splash-screen";
 
 import { setupI18n } from "@/utils/i18n";
@@ -20,11 +19,9 @@ void SplashScreen.preventAutoHideAsync();
 export default function TabLayout() {
   const [appReady, setAppReady] = React.useState(false);
   const [splashDone, setSplashDone] = React.useState(false);
-  const [onboardingChecked, setOnboardingChecked] = React.useState(false);
-  const [onboardingComplete, setOnboardingComplete] = React.useState(false);
+  const [isReady, setIsReady] = React.useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = React.useState(false);
   const colorScheme = useColorScheme();
-  const pathname = usePathname();
-  const isOnboardingRoute = pathname.startsWith("/onboarding");
 
   React.useEffect(() => {
     let mounted = true;
@@ -66,10 +63,6 @@ export default function TabLayout() {
   }, [appReady]);
 
   React.useEffect(() => {
-    if (!appReady || !splashDone) {
-      return;
-    }
-
     let mounted = true;
 
     const checkOnboarding = async () => {
@@ -79,10 +72,10 @@ export default function TabLayout() {
           return;
         }
 
-        setOnboardingComplete(hasOnboarding === "true");
+        setNeedsOnboarding(hasOnboarding !== "true");
       } finally {
         if (mounted) {
-          setOnboardingChecked(true);
+          setIsReady(true);
         }
       }
     };
@@ -92,35 +85,29 @@ export default function TabLayout() {
     return () => {
       mounted = false;
     };
-  }, [appReady, splashDone]);
-
-  React.useEffect(() => {
-    if (!onboardingChecked) {
-      return;
-    }
-
-    if (!onboardingComplete && !isOnboardingRoute) {
-      router.replace("/onboarding");
-      return;
-    }
-
-    if (onboardingComplete && isOnboardingRoute) {
-      router.replace("/");
-    }
-  }, [isOnboardingRoute, onboardingChecked, onboardingComplete]);
+  }, []);
 
   const resolvedScheme = colorScheme === "dark" ? "dark" : "light";
 
+  if (!isReady) {
+    return null;
+  }
+
   return (
     <ThemeProvider value={resolvedScheme === "dark" ? DarkTheme : DefaultTheme}>
-      {appReady && splashDone && onboardingChecked &&
-        (isOnboardingRoute ? <Slot /> : onboardingComplete ? <AppTabs /> : null)}
-      {!splashDone && (
-        <AppSplashScreen
-          colorScheme={resolvedScheme}
-          onAnimationEnd={() => setSplashDone(true)}
-        />
-      )}
+      <>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+        {needsOnboarding ? <Redirect href="/onboarding" /> : null}
+        {!splashDone && (
+          <AppSplashScreen
+            colorScheme={resolvedScheme}
+            onAnimationEnd={() => setSplashDone(true)}
+          />
+        )}
+      </>
     </ThemeProvider>
   );
 }

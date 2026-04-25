@@ -17,7 +17,8 @@
     "englishNative": "English",
     "ageTitle": "كم عمرك؟",
     "ageSubtitle": "سنحضّر لك تجربة تناسب عمرك",
-    "years": "سنة"
+    "years": "سنة",
+    "reset": "إعادة تعيين الاسم والعمر"
   },
   "map": {
     "title": "جزيرة المال",

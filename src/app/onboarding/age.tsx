@@ -4,14 +4,13 @@ import { router } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    FlatList,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -27,6 +26,7 @@ export default function OnboardingAgeScreen() {
   const { t } = useTranslation();
   const listRef = useRef<FlatList<number>>(null);
   const [selectedAge, setSelectedAge] = useState(DEFAULT_AGE);
+  const [isSaving, setIsSaving] = useState(false);
   const defaultIndex = useMemo(() => AGE_ITEMS.indexOf(DEFAULT_AGE), []);
 
   useEffect(() => {
@@ -54,22 +54,33 @@ export default function OnboardingAgeScreen() {
   };
 
   const handleFinish = async () => {
+    if (isSaving) {
+      return;
+    }
+
     const selectedLanguage = onboardingState.language ?? ((i18n.language.split('-')[0] as 'ar' | 'fr' | 'en') || 'en');
 
-    await AsyncStorage.multiSet([
-      ['onboarding_complete', 'true'],
-      ['user_gender', onboardingState.gender ?? ''],
-      ['user_name', onboardingState.name],
-      ['user_age', String(selectedAge)],
-      ['user_language', selectedLanguage],
-    ]);
+    try {
+      setIsSaving(true);
+      await AsyncStorage.multiSet([
+        ['onboarding_complete', 'true'],
+        ['user_gender', onboardingState.gender ?? ''],
+        ['user_name', onboardingState.name],
+        ['user_age', String(selectedAge)],
+        ['user_language', selectedLanguage],
+      ]);
 
-    router.replace('/');
+      router.replace('/');
+    } catch (error) {
+      console.log('Failed to persist onboarding completion', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <View style={styles.scrollContent}>
         <View style={styles.mainContent}>
           <View style={styles.textBlock}>
             <Text style={styles.title}>{t('onboarding.ageTitle')}</Text>
@@ -137,11 +148,15 @@ export default function OnboardingAgeScreen() {
             <View style={styles.dotActive} />
           </View>
 
-          <Pressable accessibilityRole="button" onPress={handleFinish} style={styles.actionButton}>
+          <Pressable
+            accessibilityRole="button"
+            disabled={isSaving}
+            onPress={handleFinish}
+            style={[styles.actionButton, isSaving && styles.actionButtonDisabled]}>
             <Text style={styles.actionButtonText}>{t('onboarding.next')}</Text>
           </Pressable>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -152,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F5F0',
   },
   scrollContent: {
-    flexGrow: 1,
+    flex: 1,
     paddingHorizontal: 20,
     paddingVertical: 24,
     justifyContent: 'space-between',
@@ -245,6 +260,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#2EAE63',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  actionButtonDisabled: {
+    opacity: 0.45,
   },
   actionButtonText: {
     color: '#FFFFFF',

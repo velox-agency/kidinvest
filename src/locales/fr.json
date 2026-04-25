@@ -17,7 +17,8 @@
     "englishNative": "English",
     "ageTitle": "Quel âge as-tu ?",
     "ageSubtitle": "Nous allons préparer une expérience adaptée à ton âge",
-    "years": "ans"
+    "years": "ans",
+    "reset": "Réinitialiser le prénom et l'âge"
   },
   "map": {
     "title": "L'île de l'argent",

@@ -17,7 +17,8 @@
     "englishNative": "English",
     "ageTitle": "How old are you?",
     "ageSubtitle": "We will prepare an experience that fits your age",
-    "years": "Years"
+    "years": "Years",
+    "reset": "Reset name and age"
   },
   "map": {
     "title": "Money Island",

@@ -2,18 +2,18 @@ import { router } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  I18nManager,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    I18nManager,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Defs, Ellipse, LinearGradient, Path, Stop, Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, Ellipse, LinearGradient, Path, Stop } from 'react-native-svg';
 
 import { onboardingState, type OnboardingGender } from '@/utils/onboarding-state';
 

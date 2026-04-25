@@ -1,6 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { I18nManager, ScrollView, StyleSheet, View } from 'react-native';
+import { I18nManager, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionCard } from '@/components/home/action-card';
@@ -9,6 +10,7 @@ import { QuestProgress, type QuestStep } from '@/components/home/quest-progress'
 import { StatCard } from '@/components/home/stat-card';
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 import i18n, { changeLanguage } from '@/utils/i18n';
+import { onboardingState } from '@/utils/onboarding-state';
 import { useColorScheme } from 'react-native';
 
 const QUEST_STEPS: readonly QuestStep[] = [
@@ -32,8 +34,14 @@ export default function HomeScreen() {
   const colors = Colors[colorScheme];
   const isRTL = I18nManager.isRTL;
 
+  const handleReset = async () => {
+    onboardingState.name = '';
+    await AsyncStorage.multiRemove(['user_name', 'user_age', 'onboarding_complete']);
+    router.replace('/onboarding');
+  };
+
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View style={[styles.screen, { backgroundColor: colors.background }]}> 
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={[
@@ -51,6 +59,14 @@ export default function HomeScreen() {
             languageLabel={t('home.switchLanguage')}
             onLanguagePress={() => changeLanguage(getNextLanguage())}
           />
+
+          <Pressable
+            accessibilityRole="button"
+            onPress={handleReset}
+            style={[styles.resetButton, { borderColor: colors.textSecondary }]}
+          >
+            <Text style={[styles.resetButtonText, { color: colors.text }]}>{t('onboarding.reset')}</Text>
+          </Pressable>
 
           <View style={[styles.statsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <StatCard
@@ -118,5 +134,16 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     alignItems: 'stretch',
     width: '100%',
+  },
+  resetButton: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    alignSelf: 'flex-start',
+  },
+  resetButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

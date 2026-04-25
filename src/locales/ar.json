@@ -1,8 +1,23 @@
 {
   "onboarding": {
-    "language": { "title": "اختر لغتك" },
-    "avatar": { "title": "اختر شخصيتك" },
-    "profile": { "nameLabel": "ما اسمك؟", "agePlaceholder": "عمرك" }
+    "welcomeTitle": "مرحباً بك! 👋",
+    "welcomeSubtitle": "اختر شخصيتك وأدخل اسمك",
+    "girl": "بنت",
+    "boy": "ولد",
+    "namePlaceholder": "اكتب اسمك هنا...",
+    "next": "التالي",
+    "chooseLanguage": "اختر لغتك",
+    "confirm": "تأكيد الاختيار",
+    "languageNote": "يمكنك تغيير اللغة لاحقاً من الإعدادات",
+    "arabicLabel": "العربية",
+    "frenchLabel": "الفرنسية",
+    "englishLabel": "الإنجليزية",
+    "arabicNative": "العربية",
+    "frenchNative": "Français",
+    "englishNative": "English",
+    "ageTitle": "كم عمرك؟",
+    "ageSubtitle": "سنحضّر لك تجربة تناسب عمرك",
+    "years": "سنة"
   },
   "map": {
     "title": "جزيرة المال",

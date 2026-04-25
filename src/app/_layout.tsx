@@ -1,9 +1,11 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
 import { Asset } from "expo-asset";
+import { Slot, router, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { useColorScheme } from "react-native";
@@ -18,7 +20,11 @@ void SplashScreen.preventAutoHideAsync();
 export default function TabLayout() {
   const [appReady, setAppReady] = React.useState(false);
   const [splashDone, setSplashDone] = React.useState(false);
+  const [onboardingChecked, setOnboardingChecked] = React.useState(false);
+  const [onboardingComplete, setOnboardingComplete] = React.useState(false);
   const colorScheme = useColorScheme();
+  const pathname = usePathname();
+  const isOnboardingRoute = pathname.startsWith("/onboarding");
 
   React.useEffect(() => {
     let mounted = true;
@@ -59,11 +65,56 @@ export default function TabLayout() {
     });
   }, [appReady]);
 
+  React.useEffect(() => {
+    if (!appReady || !splashDone) {
+      return;
+    }
+
+    let mounted = true;
+
+    const checkOnboarding = async () => {
+      try {
+        const hasOnboarding = await AsyncStorage.getItem("onboarding_complete");
+        if (!mounted) {
+          return;
+        }
+
+        setOnboardingComplete(hasOnboarding === "true");
+      } finally {
+        if (mounted) {
+          setOnboardingChecked(true);
+        }
+      }
+    };
+
+    checkOnboarding();
+
+    return () => {
+      mounted = false;
+    };
+  }, [appReady, splashDone]);
+
+  React.useEffect(() => {
+    if (!onboardingChecked) {
+      return;
+    }
+
+    if (!onboardingComplete && !isOnboardingRoute) {
+      router.replace("/onboarding");
+      return;
+    }
+
+    if (onboardingComplete && isOnboardingRoute) {
+      router.replace("/");
+    }
+  }, [isOnboardingRoute, onboardingChecked, onboardingComplete]);
+
   const resolvedScheme = colorScheme === "dark" ? "dark" : "light";
 
   return (
     <ThemeProvider value={resolvedScheme === "dark" ? DarkTheme : DefaultTheme}>
-      {appReady && <AppTabs />}
+      {appReady && splashDone && onboardingChecked &&
+        (isOnboardingRoute ? <Slot /> : onboardingComplete ? <AppTabs /> : null)}
       {!splashDone && (
         <AppSplashScreen
           colorScheme={resolvedScheme}

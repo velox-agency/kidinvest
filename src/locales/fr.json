@@ -53,7 +53,8 @@
   "tabs": {
     "home": "Accueil",
     "games": "Jeux",
-    "wallet": "Portefeuille"
+    "wallet": "Portefeuille",
+    "music": "Musique"
   },
   "games": {
     "title": "Jeux"

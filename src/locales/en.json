@@ -53,7 +53,8 @@
   "tabs": {
     "home": "Home",
     "games": "Games",
-    "wallet": "Wallet"
+    "wallet": "Wallet",
+    "music": "Music"
   },
   "games": {
     "title": "Games"

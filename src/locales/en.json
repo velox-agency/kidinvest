@@ -50,16 +50,29 @@
       "expert": "Money expert"
     }
   },
+  "cards": {
+    "coins": "Coins",
+    "level": "Level"
+  },
+  "level": {
+    "beginner": "Beginner"
+  },
+  "xp": {
+    "title": "Level {{level}} mission",
+    "progress": "{{current}} / {{max}} XP"
+  },
   "tabs": {
     "home": "Home",
     "games": "Games",
     "wallet": "Wallet"
   },
   "games": {
-    "title": "Games"
+    "title": "Games",
+    "description": "Compete in quick challenges and earn rewards."
   },
   "music": {
-    "title": "Music"
+    "title": "Music",
+    "description": "Tap into a calmer focus with a soft soundtrack."
   },
   "wallet": {
     "title": "Wallet"

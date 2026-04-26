@@ -71,7 +71,7 @@ export default function TabLayout() {
   const shouldGoToTabs =
     playerHydrated && !!profile && activeRootSegment !== "(tabs)";
 
-  if (!playerHydrated) {
+  if (!playerHydrated || !appReady) {
     return null;
   }
 

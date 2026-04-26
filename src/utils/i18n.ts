@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Localization from 'expo-localization';
-import * as Updates from 'expo-updates';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { I18nManager } from 'react-native';
@@ -38,12 +37,6 @@ export const setupI18n = async () => {
   if (I18nManager.isRTL !== isRTL) {
     I18nManager.allowRTL(isRTL);
     I18nManager.forceRTL(isRTL);
-
-    try {
-      await Updates.reloadAsync();
-    } catch {
-      // Ignore reload failures in environments where immediate runtime reload is unavailable.
-    }
   }
 };
 
@@ -56,11 +49,6 @@ export const changeLanguage = async (lang: 'ar' | 'en' | 'fr') => {
   if (I18nManager.isRTL !== isRTL) {
     I18nManager.allowRTL(isRTL);
     I18nManager.forceRTL(isRTL);
-    try {
-      await Updates.reloadAsync();
-    } catch {
-      // Ignore reload failures in environments where immediate runtime reload is unavailable.
-    }
   }
 };
 

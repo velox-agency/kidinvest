@@ -67,7 +67,6 @@ export default function HomeScreen() {
     <ImageBackground
       source={require('@/assets/images/bg/Gemini_Generated_Image_kqxo49kqxo49kqxo (1).png')}
       resizeMode="cover"
-      blurRadius={5}
       style={styles.screen}>
       <View style={styles.backgroundOverlay} />
       <SafeAreaView style={styles.safeArea}>

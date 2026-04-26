@@ -1,43 +1,30 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import {
-  I18nManager,
+  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ActionCard } from "@/components/home/action-card";
+import { CoinsCard } from "@/components/home/coins-card";
+import { GameCard } from "@/components/home/game-card";
 import { HomeHeader } from "@/components/home/home-header";
+import { LevelCard } from "@/components/home/level-card";
+import { MusicCard } from "@/components/home/music-card";
 import {
   QuestProgress,
   type QuestStep,
 } from "@/components/home/quest-progress";
-import { StatCard } from "@/components/home/stat-card";
+import { XPProgressCard } from "@/components/home/xp-progress-card";
 import { Colors, MaxContentWidth, Spacing } from "@/constants/theme";
 import { usePlayerStore } from "@/store/playerStore";
 import i18n, { changeLanguage } from "@/utils/i18n";
 import { onboardingState } from "@/utils/onboarding-state";
-import { useColorScheme } from "react-native";
-import { GameCard } from '@/components/home/game-card';
-import { HomeHeader } from '@/components/home/home-header';
-import { LevelCard } from '@/components/home/level-card';
-import { MusicCard } from '@/components/home/music-card';
-import { QuestProgress, type QuestStep } from '@/components/home/quest-progress';
-import { XPProgressCard } from '@/components/home/xp-progress-card';
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
-import i18n, { changeLanguage } from '@/utils/i18n';
-import { onboardingState } from '@/utils/onboarding-state';
-import { useColorScheme } from 'react-native';
-import { CoinsCard } from '../../components/home/coins-card';
 
 const QUEST_STEPS: readonly QuestStep[] = [
   { key: "start", status: "completed" },

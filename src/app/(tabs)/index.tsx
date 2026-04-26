@@ -3,7 +3,30 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import {
+  I18nManager,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import { ActionCard } from "@/components/home/action-card";
+import { HomeHeader } from "@/components/home/home-header";
+import {
+  QuestProgress,
+  type QuestStep,
+} from "@/components/home/quest-progress";
+import { StatCard } from "@/components/home/stat-card";
+import { Colors, MaxContentWidth, Spacing } from "@/constants/theme";
+import { usePlayerStore } from "@/store/playerStore";
+import i18n, { changeLanguage } from "@/utils/i18n";
+import { onboardingState } from "@/utils/onboarding-state";
+import { useColorScheme } from "react-native";
 import { GameCard } from '@/components/home/game-card';
 import { HomeHeader } from '@/components/home/home-header';
 import { LevelCard } from '@/components/home/level-card';
@@ -17,29 +40,40 @@ import { useColorScheme } from 'react-native';
 import { CoinsCard } from '../../components/home/coins-card';
 
 const QUEST_STEPS: readonly QuestStep[] = [
-  { key: 'start', status: 'completed' },
-  { key: 'firstPiggyBank', status: 'completed' },
-  { key: 'merchant', status: 'current' },
-  { key: 'expert', status: 'locked' },
+  { key: "start", status: "completed" },
+  { key: "firstPiggyBank", status: "completed" },
+  { key: "merchant", status: "current" },
+  { key: "expert", status: "locked" },
 ];
 
-const LANGUAGE_CYCLE: readonly ('ar' | 'fr' | 'en')[] = ['ar', 'fr', 'en'];
+const LANGUAGE_CYCLE: readonly ("ar" | "fr" | "en")[] = ["ar", "fr", "en"];
 
 function getNextLanguage() {
-  const currentLanguage = i18n.language.split('-')[0] as 'ar' | 'fr' | 'en';
+  const currentLanguage = i18n.language.split("-")[0] as "ar" | "fr" | "en";
   const currentIndex = LANGUAGE_CYCLE.indexOf(currentLanguage);
   return LANGUAGE_CYCLE[(currentIndex + 1) % LANGUAGE_CYCLE.length];
 }
 
 export default function HomeScreen() {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const resetProfile = usePlayerStore((state) => state.resetProfile);
+  const setLanguage = usePlayerStore((state) => state.setLanguage);
+  const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
   const colors = Colors[colorScheme];
 
-  const handleReset = async () => {
-    onboardingState.name = '';
-    await AsyncStorage.multiRemove(['user_name', 'user_age', 'onboarding_complete']);
-    router.replace('/onboarding');
+  const handleReset = () => {
+    resetProfile();
+    onboardingState.name = "";
+    onboardingState.gender = null;
+    onboardingState.language = null;
+    router.replace("/onboarding");
+  };
+
+  const handleLanguagePress = () => {
+    const nextLanguage = getNextLanguage();
+    onboardingState.language = nextLanguage;
+    setLanguage(nextLanguage);
+    void changeLanguage(nextLanguage);
   };
 
   return (
@@ -54,17 +88,18 @@ export default function HomeScreen() {
           contentContainerStyle={[
             styles.content,
             {
-              alignSelf: 'center',
-              width: '100%',
+              alignSelf: "center",
+              width: "100%",
               maxWidth: MaxContentWidth,
             },
           ]}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           <HomeHeader
             colorScheme={colorScheme}
-            title={t('home.welcomeTitle')}
-            languageLabel={t('home.switchLanguage')}
-            onLanguagePress={() => changeLanguage(getNextLanguage())}
+            title={t("home.welcomeTitle")}
+            languageLabel={t("home.switchLanguage")}
+            onLanguagePress={handleLanguagePress}
           />
 
           <Pressable
@@ -72,7 +107,9 @@ export default function HomeScreen() {
             onPress={handleReset}
             style={[styles.resetButton, { borderColor: colors.textSecondary }]}
           >
-            <Text style={[styles.resetButtonText, { color: colors.text }]}>{t('onboarding.reset')}</Text>
+            <Text style={[styles.resetButtonText, { color: colors.text }]}>
+              {t("onboarding.reset")}
+            </Text>
           </Pressable>
 
           <XPProgressCard level={3} currentXP={300} maxXP={600} />
@@ -119,7 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    width: '100%',
+    width: "100%",
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
     paddingBottom: Spacing.four,
@@ -146,10 +183,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   resetButtonText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

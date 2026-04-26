@@ -1,16 +1,18 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
 import { Asset } from "expo-asset";
-import { Redirect, Stack } from "expo-router";
+import { Redirect, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AppSplashScreen } from "@/components/splash-screen";
+import { useStoreHydration } from "@/hooks/useStoreHydration";
+import { usePlayerStore } from "@/store/playerStore";
 
 import { setupI18n } from "@/utils/i18n";
 
@@ -19,9 +21,10 @@ void SplashScreen.preventAutoHideAsync();
 export default function TabLayout() {
   const [appReady, setAppReady] = React.useState(false);
   const [splashDone, setSplashDone] = React.useState(false);
-  const [isReady, setIsReady] = React.useState(false);
-  const [needsOnboarding, setNeedsOnboarding] = React.useState(false);
   const colorScheme = useColorScheme();
+  const segments = useSegments();
+  const playerHydrated = useStoreHydration();
+  const profile = usePlayerStore((state) => state.profile);
 
   React.useEffect(() => {
     let mounted = true;
@@ -62,34 +65,14 @@ export default function TabLayout() {
     });
   }, [appReady]);
 
-  React.useEffect(() => {
-    let mounted = true;
-
-    const checkOnboarding = async () => {
-      try {
-        const hasOnboarding = await AsyncStorage.getItem("onboarding_complete");
-        if (!mounted) {
-          return;
-        }
-
-        setNeedsOnboarding(hasOnboarding !== "true");
-      } finally {
-        if (mounted) {
-          setIsReady(true);
-        }
-      }
-    };
-
-    checkOnboarding();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
   const resolvedScheme = colorScheme === "dark" ? "dark" : "light";
+  const activeRootSegment = segments[0];
+  const shouldGoToOnboarding =
+    playerHydrated && !profile && activeRootSegment !== "onboarding";
+  const shouldGoToTabs =
+    playerHydrated && !!profile && activeRootSegment !== "(tabs)";
 
-  if (!isReady) {
+  if (!playerHydrated) {
     return null;
   }
 

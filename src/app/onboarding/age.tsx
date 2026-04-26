@@ -1,21 +1,22 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-    FlatList,
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import i18n from '@/utils/i18n';
-import { onboardingState } from '@/utils/onboarding-state';
+import { usePlayerStore } from "@/store/playerStore";
+import { Language } from "@/types/player.types";
+import i18n from "@/utils/i18n";
+import { onboardingState } from "@/utils/onboarding-state";
 
 const ITEM_HEIGHT = 64;
 const PICKER_HEIGHT = 192;
@@ -24,6 +25,7 @@ const DEFAULT_AGE = 8;
 
 export default function OnboardingAgeScreen() {
   const { t } = useTranslation();
+  const createProfile = usePlayerStore((state) => state.createProfile);
   const listRef = useRef<FlatList<number>>(null);
   const [selectedAge, setSelectedAge] = useState(DEFAULT_AGE);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,7 +33,7 @@ export default function OnboardingAgeScreen() {
 
   useEffect(() => {
     if (!onboardingState.gender || !onboardingState.name.trim()) {
-      router.replace('/onboarding');
+      router.replace("/onboarding");
     }
   }, []);
 
@@ -46,33 +48,42 @@ export default function OnboardingAgeScreen() {
     return () => clearTimeout(timer);
   }, [defaultIndex]);
 
-  const handleMomentumEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleMomentumEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const rawIndex = Math.round(offsetY / ITEM_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(rawIndex, AGE_ITEMS.length - 1));
     setSelectedAge(AGE_ITEMS[clampedIndex]);
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     if (isSaving) {
       return;
     }
 
-    const selectedLanguage = onboardingState.language ?? ((i18n.language.split('-')[0] as 'ar' | 'fr' | 'en') || 'en');
+    if (!onboardingState.gender || !onboardingState.name.trim()) {
+      router.replace("/onboarding");
+      return;
+    }
+
+    const selectedLanguage =
+      onboardingState.language ??
+      ((i18n.language.split("-")[0] as Language) || "en");
 
     try {
       setIsSaving(true);
-      await AsyncStorage.multiSet([
-        ['onboarding_complete', 'true'],
-        ['user_gender', onboardingState.gender ?? ''],
-        ['user_name', onboardingState.name],
-        ['user_age', String(selectedAge)],
-        ['user_language', selectedLanguage],
-      ]);
+      createProfile({
+        name: onboardingState.name.trim(),
+        age: selectedAge,
+        language: selectedLanguage,
+        avatarBase: onboardingState.gender,
+      });
 
-      router.replace('/');
+      onboardingState.language = selectedLanguage;
+      router.replace("/(tabs)");
     } catch (error) {
-      console.log('Failed to persist onboarding completion', error);
+      console.log("Failed to persist onboarding completion", error);
     } finally {
       setIsSaving(false);
     }
@@ -83,8 +94,8 @@ export default function OnboardingAgeScreen() {
       <View style={styles.scrollContent}>
         <View style={styles.mainContent}>
           <View style={styles.textBlock}>
-            <Text style={styles.title}>{t('onboarding.ageTitle')}</Text>
-            <Text style={styles.subtitle}>{t('onboarding.ageSubtitle')}</Text>
+            <Text style={styles.title}>{t("onboarding.ageTitle")}</Text>
+            <Text style={styles.subtitle}>{t("onboarding.ageSubtitle")}</Text>
           </View>
 
           <View style={styles.pickerWrap}>
@@ -106,13 +117,23 @@ export default function OnboardingAgeScreen() {
               renderItem={({ item }) => {
                 const distance = Math.abs(item - selectedAge);
                 const fontSize = distance === 0 ? 48 : distance === 1 ? 28 : 20;
-                const fontWeight = distance === 0 ? '800' : '600';
-                const color = distance === 0 ? '#2EAE63' : distance === 1 ? '#AAAAAA' : '#CCCCCC';
+                const fontWeight = distance === 0 ? "800" : "600";
+                const color =
+                  distance === 0
+                    ? "#2EAE63"
+                    : distance === 1
+                      ? "#AAAAAA"
+                      : "#CCCCCC";
                 const scale = distance === 0 ? 1 : distance === 1 ? 0.9 : 0.82;
 
                 return (
                   <View style={styles.ageItem}>
-                    <Text style={[styles.ageText, { fontSize, fontWeight, color, transform: [{ scale }] }]}>
+                    <Text
+                      style={[
+                        styles.ageText,
+                        { fontSize, fontWeight, color, transform: [{ scale }] },
+                      ]}
+                    >
                       {item}
                     </Text>
                   </View>
@@ -122,7 +143,7 @@ export default function OnboardingAgeScreen() {
 
             <View pointerEvents="none" style={styles.pickerOverlayTop}>
               <LinearGradient
-                colors={['#F7F5F0', 'rgba(247,245,240,0)']}
+                colors={["#F7F5F0", "rgba(247,245,240,0)"]}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
                 style={styles.fadeGradient}
@@ -130,7 +151,7 @@ export default function OnboardingAgeScreen() {
             </View>
             <View pointerEvents="none" style={styles.pickerOverlayBottom}>
               <LinearGradient
-                colors={['rgba(247,245,240,0)', '#F7F5F0']}
+                colors={["rgba(247,245,240,0)", "#F7F5F0"]}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
                 style={styles.fadeGradient}
@@ -138,7 +159,7 @@ export default function OnboardingAgeScreen() {
             </View>
           </View>
 
-          <Text style={styles.yearsLabel}>{t('onboarding.years')}</Text>
+          <Text style={styles.yearsLabel}>{t("onboarding.years")}</Text>
         </View>
 
         <View style={styles.footer}>
@@ -152,8 +173,12 @@ export default function OnboardingAgeScreen() {
             accessibilityRole="button"
             disabled={isSaving}
             onPress={handleFinish}
-            style={[styles.actionButton, isSaving && styles.actionButtonDisabled]}>
-            <Text style={styles.actionButtonText}>{t('onboarding.next')}</Text>
+            style={[
+              styles.actionButton,
+              isSaving && styles.actionButtonDisabled,
+            ]}
+          >
+            <Text style={styles.actionButtonText}>{t("onboarding.next")}</Text>
           </Pressable>
         </View>
       </View>
@@ -164,67 +189,67 @@ export default function OnboardingAgeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F5F0',
+    backgroundColor: "#F7F5F0",
   },
   scrollContent: {
     flex: 1,
     paddingHorizontal: 20,
     paddingVertical: 24,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   mainContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     gap: 14,
   },
   textBlock: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: 10,
   },
   title: {
-    color: '#1A1A1A',
+    color: "#1A1A1A",
     fontSize: 34,
-    fontWeight: '800',
-    textAlign: 'center',
+    fontWeight: "800",
+    textAlign: "center",
   },
   subtitle: {
-    color: '#888888',
+    color: "#888888",
     fontSize: 17,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontWeight: "500",
+    textAlign: "center",
   },
   pickerWrap: {
-    width: '100%',
+    width: "100%",
     maxWidth: 220,
     height: PICKER_HEIGHT,
-    position: 'relative',
+    position: "relative",
   },
   pickerContent: {
     paddingVertical: ITEM_HEIGHT,
   },
   ageItem: {
     height: ITEM_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   ageText: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   yearsLabel: {
-    color: '#888888',
+    color: "#888888",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   pickerOverlayTop: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     height: 64,
   },
   pickerOverlayBottom: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
@@ -237,36 +262,36 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   progressDots: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: 6,
   },
   dotActive: {
     width: 24,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#2EAE63',
+    backgroundColor: "#2EAE63",
   },
   dotInactive: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#CCCCCC',
+    backgroundColor: "#CCCCCC",
   },
   actionButton: {
     height: 56,
     borderRadius: 999,
-    backgroundColor: '#2EAE63',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#2EAE63",
+    alignItems: "center",
+    justifyContent: "center",
   },
   actionButtonDisabled: {
     opacity: 0.45,
   },
   actionButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: "800",
   },
 });

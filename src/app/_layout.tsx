@@ -68,8 +68,10 @@ export default function TabLayout() {
   const activeRootSegment = segments[0];
   const shouldGoToOnboarding =
     playerHydrated && !profile && activeRootSegment !== "onboarding";
+  const isAllowedSignedInRoute =
+    activeRootSegment === "(tabs)" || activeRootSegment === "level";
   const shouldGoToTabs =
-    playerHydrated && !!profile && activeRootSegment !== "(tabs)";
+    playerHydrated && !!profile && !isAllowedSignedInRoute;
 
   if (!playerHydrated || !appReady) {
     return null;

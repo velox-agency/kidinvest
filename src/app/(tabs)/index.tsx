@@ -22,6 +22,17 @@ import { usePlayerStore } from "@/store/playerStore";
 import i18n, { changeLanguage } from "@/utils/i18n";
 import { onboardingState } from "@/utils/onboarding-state";
 import { useColorScheme } from "react-native";
+import { GameCard } from '@/components/home/game-card';
+import { HomeHeader } from '@/components/home/home-header';
+import { LevelCard } from '@/components/home/level-card';
+import { MusicCard } from '@/components/home/music-card';
+import { QuestProgress, type QuestStep } from '@/components/home/quest-progress';
+import { XPProgressCard } from '@/components/home/xp-progress-card';
+import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import i18n, { changeLanguage } from '@/utils/i18n';
+import { onboardingState } from '@/utils/onboarding-state';
+import { useColorScheme } from 'react-native';
+import { CoinsCard } from '../../components/home/coins-card';
 
 const QUEST_STEPS: readonly QuestStep[] = [
   { key: "start", status: "completed" },
@@ -92,48 +103,24 @@ export default function HomeScreen() {
             </Text>
           </Pressable>
 
-          <View
-            style={[
-              styles.statsRow,
-              { flexDirection: isRTL ? "row-reverse" : "row" },
-            ]}
-          >
-            <StatCard
-              colorScheme={colorScheme}
-              label={t("home.level")}
-              value="Beginner"
-              accent="green"
-            />
-            <StatCard
-              colorScheme={colorScheme}
-              label={t("home.coins")}
-              value="120"
-              accent="yellow"
-            />
+          <XPProgressCard level={3} currentXP={300} maxXP={600} />
+
+          <View style={styles.statsRow}> 
+            <CoinsCard value={120} />
+            <LevelCard level={t('level.beginner')} />
           </View>
 
-          <View
-            style={[
-              styles.actionsRow,
-              { flexDirection: isRTL ? "row-reverse" : "row" },
-            ]}
-          >
-            <ActionCard
-              colorScheme={colorScheme}
-              accent="green"
-              title={t("home.gamesTitle")}
-              subtitle={t("home.gamesSubtitle")}
-              buttonLabel={t("home.playNow")}
-              onPress={() => router.push("/games")}
+          <View style={[styles.actionsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}> 
+            <GameCard
+              title={t('games.title')}
+              description={t('games.description')}
+              onPress={() => router.push('/games')}
             />
 
-            <ActionCard
-              colorScheme={colorScheme}
-              accent="yellow"
-              title={t("home.musicTitle")}
-              subtitle={t("home.musicSubtitle")}
-              buttonLabel={t("home.listenNow")}
-              onPress={() => router.push("/music")}
+            <MusicCard
+              title={t('music.title')}
+              description={t('music.description')}
+              onPress={() => router.push('/music')}
             />
           </View>
 
@@ -160,6 +147,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   statsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: Spacing.three,
     alignItems: "stretch",
     width: "100%",

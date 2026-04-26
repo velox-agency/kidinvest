@@ -50,6 +50,17 @@
       "expert": "Expert de l’argent"
     }
   },
+  "cards": {
+    "coins": "PIÈCES",
+    "level": "NIVEAU"
+  },
+  "level": {
+    "beginner": "Débutant"
+  },
+  "xp": {
+    "title": "Mission niveau {{level}}",
+    "progress": "{{current}} / {{max}} XP"
+  },
   "tabs": {
     "home": "Accueil",
     "games": "Jeux",
@@ -57,10 +68,12 @@
     "music": "Musique"
   },
   "games": {
-    "title": "Jeux"
+    "title": "Jeux",
+    "description": "Relevez des défis rapides et gagnez des récompenses."
   },
   "music": {
-    "title": "Musique"
+    "title": "Musique",
+    "description": "Plonge dans une concentration plus douce avec une bande-son apaisante."
   },
   "wallet": {
     "title": "Portefeuille"

@@ -1,14 +1,13 @@
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
 import { Asset } from "expo-asset";
 import { Redirect, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { useColorScheme } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AppSplashScreen } from "@/components/splash-screen";
 import { useStoreHydration } from "@/hooks/useStoreHydration";
@@ -69,33 +68,32 @@ export default function TabLayout() {
   const activeRootSegment = segments[0];
   const shouldGoToOnboarding =
     playerHydrated && !profile && activeRootSegment !== "onboarding";
+  const isAllowedSignedInRoute =
+    activeRootSegment === "(tabs)" || activeRootSegment === "level";
   const shouldGoToTabs =
-    playerHydrated && !!profile && activeRootSegment !== "(tabs)";
+    playerHydrated && !!profile && !isAllowedSignedInRoute;
 
-  if (!playerHydrated) {
+  if (!playerHydrated || !appReady) {
     return null;
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider
-        value={resolvedScheme === "dark" ? DarkTheme : DefaultTheme}
-      >
-        <>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="onboarding" />
-            <Stack.Screen name="(tabs)" />
-          </Stack>
-          {shouldGoToOnboarding ? <Redirect href="/onboarding" /> : null}
-          {shouldGoToTabs ? <Redirect href="/(tabs)" /> : null}
-          {!splashDone && (
-            <AppSplashScreen
-              colorScheme={resolvedScheme}
-              onAnimationEnd={() => setSplashDone(true)}
-            />
-          )}
-        </>
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <ThemeProvider value={resolvedScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="level/[id]" />
+        </Stack>
+        {shouldGoToOnboarding ? <Redirect href="/onboarding" /> : null}
+        {shouldGoToTabs ? <Redirect href="/(tabs)" /> : null}
+        {!splashDone && (
+          <AppSplashScreen
+            colorScheme={resolvedScheme}
+            onAnimationEnd={() => setSplashDone(true)}
+          />
+        )}
+      </>
+    </ThemeProvider>
   );
 }

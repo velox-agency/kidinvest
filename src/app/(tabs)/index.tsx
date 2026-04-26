@@ -1,38 +1,30 @@
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import {
-  I18nManager,
+  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ActionCard } from "@/components/home/action-card";
+import { CoinsCard } from "@/components/home/coins-card";
+import { GameCard } from "@/components/home/game-card";
 import { HomeHeader } from "@/components/home/home-header";
+import { LevelCard } from "@/components/home/level-card";
+import { MusicCard } from "@/components/home/music-card";
 import {
   QuestProgress,
   type QuestStep,
 } from "@/components/home/quest-progress";
-import { StatCard } from "@/components/home/stat-card";
+import { XPProgressCard } from "@/components/home/xp-progress-card";
 import { Colors, MaxContentWidth, Spacing } from "@/constants/theme";
 import { usePlayerStore } from "@/store/playerStore";
 import i18n, { changeLanguage } from "@/utils/i18n";
 import { onboardingState } from "@/utils/onboarding-state";
-import { useColorScheme } from "react-native";
-import { GameCard } from '@/components/home/game-card';
-import { HomeHeader } from '@/components/home/home-header';
-import { LevelCard } from '@/components/home/level-card';
-import { MusicCard } from '@/components/home/music-card';
-import { QuestProgress, type QuestStep } from '@/components/home/quest-progress';
-import { XPProgressCard } from '@/components/home/xp-progress-card';
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
-import i18n, { changeLanguage } from '@/utils/i18n';
-import { onboardingState } from '@/utils/onboarding-state';
-import { useColorScheme } from 'react-native';
-import { CoinsCard } from '../../components/home/coins-card';
 
 const QUEST_STEPS: readonly QuestStep[] = [
   { key: "start", status: "completed" },
@@ -55,7 +47,6 @@ export default function HomeScreen() {
   const setLanguage = usePlayerStore((state) => state.setLanguage);
   const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
   const colors = Colors[colorScheme];
-  const isRTL = I18nManager.isRTL;
 
   const handleReset = () => {
     resetProfile();
@@ -73,7 +64,11 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <ImageBackground
+      source={require('@/assets/images/bg/Gemini_Generated_Image_kqxo49kqxo49kqxo (1).png')}
+      resizeMode="cover"
+      style={styles.screen}>
+      <View style={styles.backgroundOverlay} />
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={[
@@ -106,34 +101,42 @@ export default function HomeScreen() {
           <XPProgressCard level={3} currentXP={300} maxXP={600} />
 
           <View style={styles.statsRow}> 
-            <CoinsCard value={120} />
             <LevelCard level={t('level.beginner')} />
+            <CoinsCard value={120} />
           </View>
 
-          <View style={[styles.actionsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}> 
-            <GameCard
-              title={t('games.title')}
-              description={t('games.description')}
-              onPress={() => router.push('/games')}
-            />
+          <View style={styles.actionsColumn}>
+            <View style={styles.actionRow}>
+              <GameCard
+                title={t('games.title')}
+                description={t('games.description')}
+                onPress={() => router.push('/games')}
+              />
+            </View>
 
-            <MusicCard
-              title={t('music.title')}
-              description={t('music.description')}
-              onPress={() => router.push('/music')}
-            />
+            <View style={styles.actionRow}>
+              <MusicCard
+                title={t('music.title')}
+                description={t('music.description')}
+                onPress={() => router.push('/music')}
+              />
+            </View>
           </View>
 
           <QuestProgress colorScheme={colorScheme} steps={QUEST_STEPS} />
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  backgroundOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(11, 15, 26, 0.32)',
   },
   safeArea: {
     flex: 1,
@@ -148,16 +151,18 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: Spacing.three,
-    alignItems: "stretch",
-    width: "100%",
+    alignItems: 'stretch',
+    width: '100%',
   },
-  actionsRow: {
+  actionsColumn: {
+    width: '100%',
     gap: Spacing.three,
-    alignItems: "stretch",
-    width: "100%",
+  },
+  actionRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'stretch',
   },
   resetButton: {
     borderWidth: 1,

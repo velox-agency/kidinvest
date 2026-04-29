@@ -1,7 +1,7 @@
 import { Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 
@@ -24,11 +24,20 @@ export default function LevelSongItem({ song, onPlay, selected }: Props) {
 
   // subtle floating when selected
   const float = useSharedValue(0);
-  if (selected) {
-    float.value = withRepeat(withTiming(6, { duration: 1500, easing: Easing.inOut(Easing.ease) }), -1, true);
-  } else {
-    float.value = withTiming(0);
-  }
+
+  useEffect(() => {
+    if (selected) {
+      float.value = withRepeat(
+        withTiming(6, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+        -1,
+        true
+      );
+      glow.value = withTiming(1, { duration: 350 });
+    } else {
+      float.value = withTiming(0);
+      glow.value = withTiming(0, { duration: 350 });
+    }
+  }, [selected, float, glow]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [

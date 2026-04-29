@@ -1,9 +1,9 @@
 import { Spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MotiView, useAnimationState } from 'moti';
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 
 export type Song = {
   id: string;
@@ -15,87 +15,151 @@ export type Song = {
 type Props = {
   song: Song;
   onPlay: (s: Song) => void;
-  isPlaying?: boolean;
+  selected?: boolean;
 };
 
-export default function SongCard({ song, onPlay, isPlaying }: Props) {
-  const state = useAnimationState({
-    rest: { scale: 1 },
-    pressed: { scale: 0.97 },
-  });
+export default function LevelSongItem({ song, onPlay, selected }: Props) {
+  const scale = useSharedValue(1);
+  const glow = useSharedValue(selected ? 1 : 0);
+
+  // subtle floating when selected
+  const float = useSharedValue(0);
+  if (selected) {
+    float.value = withRepeat(withTiming(6, { duration: 1500, easing: Easing.inOut(Easing.ease) }), -1, true);
+  } else {
+    float.value = withTiming(0);
+  }
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: withSpring(scale.value, { stiffness: 200, damping: 14 }) },
+      { translateY: -float.value },
+    ],
+    shadowOpacity: interpolate(glow.value, [0, 1], [0.12, 0.45]),
+  }));
+
+  const frameGlow = useAnimatedStyle(() => ({
+    shadowRadius: interpolate(glow.value, [0, 1], [8, 22]),
+    shadowOpacity: interpolate(glow.value, [0, 1], [0.08, 0.65]),
+  }));
+
+  const onPressIn = () => { scale.value = 0.96; };
+  const onPressOut = () => { scale.value = 1; };
 
   return (
-    <Pressable
-      onPress={() => onPlay(song)}
-      onPressIn={() => state.transitionTo('pressed')}
-      onPressOut={() => state.transitionTo('rest')}
-      style={{ width: '100%' }}
-    >
-      <MotiView state={state} style={styles.outer}>
-        <LinearGradient
-          colors={isPlaying ? ['#00F0FF', '#8A2BE2'] : ['#151426', '#0D0F16']}
-          start={[0, 0]}
-          end={[1, 1]}
-          style={styles.gradient}
-        >
-          <View style={styles.row}>
-            <Image source={{ uri: song.cover }} style={styles.cover} />
-            <View style={styles.info}>
-              <Text numberOfLines={1} style={styles.title}>{song.title}</Text>
-              <Text numberOfLines={1} style={styles.artist}>{song.artist}</Text>
+    <Animated.View style={[styles.wrapper, animatedStyle]}>
+      <Pressable onPress={() => onPlay(song)} onPressIn={onPressIn} onPressOut={onPressOut}>
+        <View style={[styles.row, selected ? styles.rowSelected : null]}>
+          <Animated.View style={[styles.avatarFrame, frameGlow]}>
+            <LinearGradient colors={["#E6C86A", "#D49E2A"]} style={styles.frameGradient}>
+              <Image source={{ uri: song.cover }} style={styles.cover} />
+            </LinearGradient>
+          </Animated.View>
+
+          <View style={styles.info}>
+            <Text numberOfLines={1} style={styles.title}>{song.title}</Text>
+            <Text numberOfLines={1} style={styles.artist}>{song.artist}</Text>
+
+            <View style={styles.starsRow}>
+              <View style={styles.star} />
+              <View style={styles.star} />
+              <View style={styles.star} />
             </View>
-            <Pressable onPress={() => onPlay(song)} style={styles.playButton}>
-              <Ionicons name="play" size={18} color="#0B1020" />
-            </Pressable>
           </View>
-        </LinearGradient>
-      </MotiView>
-    </Pressable>
+
+          <Pressable onPress={() => onPlay(song)} onPressIn={onPressIn} onPressOut={onPressOut} style={styles.playWrap}>
+            <LinearGradient
+              colors={selected ? ["#65D27A", "#2FB24E"] : ["#FFD66B", "#F89D2B"]}
+              style={styles.playButton}
+            >
+              <Ionicons name="play" size={18} color={selected ? '#04220A' : '#2A1B00'} />
+            </LinearGradient>
+          </Pressable>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  outer: {
+  wrapper: {
     marginVertical: Spacing.one,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#6C6CFF',
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
+    borderRadius: 18,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-  },
-  gradient: {
-    padding: Spacing.two,
-    borderRadius: 20,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    overflow: 'visible',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: Spacing.two,
+    backgroundColor: 'transparent',
+    borderRadius: 16,
+  },
+  rowSelected: {
+    backgroundColor: 'rgba(40,200,120,0.08)',
+  },
+  avatarFrame: {
+    width: 72,
+    height: 72,
+    borderRadius: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.three,
+    shadowColor: '#A6FFB0',
+  },
+  frameGradient: {
+    width: 64,
+    height: 64,
+    borderRadius: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 4,
   },
   cover: {
     width: 56,
     height: 56,
     borderRadius: 999,
-    marginRight: Spacing.three,
-    backgroundColor: '#222',
+    backgroundColor: '#EEE',
   },
   info: {
     flex: 1,
   },
   title: {
-    color: '#F7F8FF',
+    color: '#FFD3A6',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   artist: {
-    color: '#B8BEEA',
-    fontSize: 13,
-    marginTop: 2,
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  star: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFD66B',
+    marginRight: 6,
+  },
+  playWrap: {
+    marginLeft: Spacing.two,
   },
   playButton: {
-    backgroundColor: '#FFD7A6',
-    padding: 12,
+    width: 56,
+    height: 56,
     borderRadius: 999,
-    marginLeft: Spacing.two,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.24,
+    shadowRadius: 12,
   },
 });

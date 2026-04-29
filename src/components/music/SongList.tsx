@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import SongCard, { Song } from './SongCard';
+import LevelSongItem, { Song } from './SongCard';
 
 type Props = {
   songs: Song[];
@@ -11,7 +11,7 @@ type Props = {
 export default function SongList({ songs, onPlay, playingId }: Props) {
   const renderItem = useCallback(
     ({ item }: { item: Song }) => (
-      <SongCard key={item.id} song={item} onPlay={onPlay} isPlaying={playingId === item.id} />
+      <LevelSongItem key={item.id} song={item} onPlay={onPlay} selected={playingId === item.id} />
     ),
     [onPlay, playingId]
   );

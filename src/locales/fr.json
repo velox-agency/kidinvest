@@ -22,7 +22,8 @@
   },
   "map": {
     "title": "L'île de l'argent",
-    "locked": "Verrouillé"
+    "locked": "Verrouillé",
+    "lockedMessage": "Ce niveau est verrouillé. Termine les niveaux précédents pour le débloquer."
   },
   "shop": {
     "title": "Boutique d'avatar",

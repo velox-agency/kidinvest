@@ -22,7 +22,8 @@
   },
   "map": {
     "title": "Money Island",
-    "locked": "Locked"
+    "locked": "Locked",
+    "lockedMessage": "This level is locked. Complete previous levels to unlock."
   },
   "shop": {
     "title": "Avatar Shop",

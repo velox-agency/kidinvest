@@ -2,14 +2,15 @@ import { useProgressStore } from '@/store/progressStore';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
-  Dimensions,
-  Image,
-  ImageBackground,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    Alert,
+    Dimensions,
+    Image,
+    ImageBackground,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { Grayscale } from 'react-native-color-matrix-image-filters';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -71,11 +72,13 @@ export default function GamesScreen() {
               <Pressable
                 key={level.id}
                 onPress={() => {
-                  if (locked) return;
+                  if (locked) {
+                    Alert.alert(t('map.locked'), t('map.lockedMessage'));
+                    return;
+                  }
                   router.push(`/level/${String(level.id)}`);
                 }}
                 hitSlop={10}
-                disabled={locked}
                 style={[styles.levelButton, { left: level.x, top: level.y }]}
               >
                 {locked ? (

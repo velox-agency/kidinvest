@@ -24,7 +24,6 @@ import { XPProgressCard } from "@/components/home/xp-progress-card";
 import { Colors, MaxContentWidth, Spacing } from "@/constants/theme";
 import { usePlayerStore } from "@/store/playerStore";
 import { useProgressStore } from '@/store/progressStore';
-import i18n, { changeLanguage } from "@/utils/i18n";
 import { onboardingState } from "@/utils/onboarding-state";
 
 const QUEST_STEPS: readonly QuestStep[] = [
@@ -33,18 +32,10 @@ const QUEST_STEPS: readonly QuestStep[] = [
   { key: "merchant", status: "current" },
   { key: "expert", status: "locked" },
 ];
-const LANGUAGE_CYCLE: readonly ("ar" | "fr" | "en")[] = ["ar", "fr", "en"];
-
-function getNextLanguage() {
-  const currentLanguage = i18n.language.split("-")[0] as "ar" | "fr" | "en";
-  const currentIndex = LANGUAGE_CYCLE.indexOf(currentLanguage);
-  return LANGUAGE_CYCLE[(currentIndex + 1) % LANGUAGE_CYCLE.length];
-}
-
 export default function HomeScreen() {
   const { t } = useTranslation();
   const resetProfile = usePlayerStore((state) => state.resetProfile);
-  const setLanguage = usePlayerStore((state) => state.setLanguage);
+  const profile = usePlayerStore((state) => state.profile);
   const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
   const colors = Colors[colorScheme];
 
@@ -54,13 +45,6 @@ export default function HomeScreen() {
     onboardingState.gender = null;
     onboardingState.language = null;
     router.replace("/onboarding");
-  };
-
-  const handleLanguagePress = () => {
-    const nextLanguage = getNextLanguage();
-    onboardingState.language = nextLanguage;
-    setLanguage(nextLanguage);
-    void changeLanguage(nextLanguage);
   };
 
   const currentXP = useProgressStore((s) => s.xp);
@@ -86,8 +70,8 @@ export default function HomeScreen() {
           <HomeHeader
             colorScheme={colorScheme}
             title={t("home.welcomeTitle")}
-            languageLabel={t("home.switchLanguage")}
-            onLanguagePress={handleLanguagePress}
+            avatarEmoji={profile?.avatarBase === 'girl' ? '👧' : '👦'}
+            onAvatarPress={() => router.push('/profile')}
           />
 
           <Pressable

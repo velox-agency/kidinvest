@@ -69,7 +69,7 @@ export default function TabLayout() {
   const shouldGoToOnboarding =
     playerHydrated && !profile && activeRootSegment !== "onboarding";
   const isAllowedSignedInRoute =
-    activeRootSegment === "(tabs)" || activeRootSegment === "level";
+    activeRootSegment === "(tabs)" || activeRootSegment === "level" || activeRootSegment === "profile";
   const shouldGoToTabs =
     playerHydrated && !!profile && !isAllowedSignedInRoute;
 
@@ -84,6 +84,7 @@ export default function TabLayout() {
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="level/[id]" />
+          <Stack.Screen name="profile" />
         </Stack>
         {shouldGoToOnboarding ? <Redirect href="/onboarding" /> : null}
         {shouldGoToTabs ? <Redirect href="/(tabs)" /> : null}

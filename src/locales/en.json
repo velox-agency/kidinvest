@@ -22,7 +22,8 @@
   },
   "map": {
     "title": "Money Island",
-    "locked": "Locked"
+    "locked": "Locked",
+    "lockedMessage": "This level is locked. Complete previous levels to unlock."
   },
   "shop": {
     "title": "Avatar Shop",
@@ -67,10 +68,25 @@
     "wallet": "Wallet",
     "music": "Music"
   },
+  "profile_erase_all_data": "Erase all data",
+  "profile_erase_title": "Erase all data?",
+  "profile_erase_confirm": "This will clear your progress, profile, and saved language.",
+  "profile_erase_yes": "Erase",
+  "profile_erase_no": "Cancel",
   "games": {
     "title": "Games",
     "description": "Compete in quick challenges and earn rewards."
   },
+  "game1_title": "Race Against Time",
+  "game1_countdown_go": "GO!",
+  "game1_collected_label": "You collected:",
+  "game1_well_done": "Well done! You won.",
+  "game1_xp_earned": "+50 XP earned",
+  "game1_next_game": "Next Game",
+  "game1_back_to_map": "Back to Map",
+  "game1_exit_confirm": "Are you sure you want to exit? Your progress this round will be lost.",
+  "game1_exit_yes": "Yes",
+  "game1_exit_no": "No",
   "music": {
     "title": "Music",
     "description": "Tap into a calmer focus with a soft soundtrack."

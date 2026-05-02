@@ -22,7 +22,8 @@
   },
   "map": {
     "title": "L'île de l'argent",
-    "locked": "Verrouillé"
+    "locked": "Verrouillé",
+    "lockedMessage": "Ce niveau est verrouillé. Termine les niveaux précédents pour le débloquer."
   },
   "shop": {
     "title": "Boutique d'avatar",
@@ -67,10 +68,25 @@
     "wallet": "Portefeuille",
     "music": "Musique"
   },
+  "profile_erase_all_data": "Effacer toutes les données",
+  "profile_erase_title": "Effacer toutes les données ?",
+  "profile_erase_confirm": "Cela supprimera ta progression, ton profil et la langue enregistrée.",
+  "profile_erase_yes": "Effacer",
+  "profile_erase_no": "Annuler",
   "games": {
     "title": "Jeux",
     "description": "Relevez des défis rapides et gagnez des récompenses."
   },
+  "game1_title": "Course contre la montre",
+  "game1_countdown_go": "Partez!",
+  "game1_collected_label": "Vous avez collecté:",
+  "game1_well_done": "Bravo! Vous avez gagné.",
+  "game1_xp_earned": "+50 XP gagnés",
+  "game1_next_game": "Jeu suivant",
+  "game1_back_to_map": "Retour à la carte",
+  "game1_exit_confirm": "Voulez-vous quitter? Votre progression sera perdue.",
+  "game1_exit_yes": "Oui",
+  "game1_exit_no": "Non",
   "music": {
     "title": "Musique",
     "description": "Plonge dans une concentration plus douce avec une bande-son apaisante."

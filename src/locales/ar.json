@@ -22,7 +22,8 @@
   },
   "map": {
     "title": "جزيرة المال",
-    "locked": "مغلق"
+    "locked": "مغلق",
+    "lockedMessage": "هذا المستوى مغلق. أكمل المستويات السابقة لفتحه."
   },
   "shop": {
     "title": "متجر الشخصية",
@@ -67,10 +68,25 @@
     "wallet": "المحفظة",
     "music": "الموسيقى"
   },
+  "profile_erase_all_data": "مسح كل البيانات",
+  "profile_erase_title": "مسح كل البيانات؟",
+  "profile_erase_confirm": "سيؤدي هذا إلى حذف تقدمك وملفك الشخصي واللغة المحفوظة.",
+  "profile_erase_yes": "مسح",
+  "profile_erase_no": "إلغاء",
   "games": {
     "title": "الألعاب",
     "description": "تحديات سريعة ومكافآت ممتعة بانتظارك."
   },
+  "game1_title": "السباق مع الزمن",
+  "game1_countdown_go": "انطلق!",
+  "game1_collected_label": "جمعت:",
+  "game1_well_done": "أحسنت! لقد فزت.",
+  "game1_xp_earned": "+50 نقطة خبرة",
+  "game1_next_game": "اللعبة التالية",
+  "game1_back_to_map": "العودة للخريطة",
+  "game1_exit_confirm": "هل تريد الخروج؟ ستفقد تقدمك في هذه الجولة.",
+  "game1_exit_yes": "نعم",
+  "game1_exit_no": "لا",
   "music": {
     "title": "الموسيقى",
     "description": "استمتع بلحظة تركيز أهدأ مع موسيقى لطيفة."

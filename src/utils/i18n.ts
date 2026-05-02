@@ -52,4 +52,18 @@ export const changeLanguage = async (lang: 'ar' | 'en' | 'fr') => {
   }
 };
 
+export const resetLanguage = async () => {
+  await AsyncStorage.removeItem(LANGUAGE_KEY);
+
+  const locale = Localization.getLocales()[0]?.languageCode || 'en';
+  await i18n.changeLanguage(locale);
+
+  const isRTL = locale === 'ar';
+
+  if (I18nManager.isRTL !== isRTL) {
+    I18nManager.allowRTL(isRTL);
+    I18nManager.forceRTL(isRTL);
+  }
+};
+
 export default i18n;

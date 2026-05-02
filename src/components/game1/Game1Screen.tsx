@@ -23,16 +23,20 @@ import { useProgressStore } from '@/store/progressStore';
 
 type Phase = 'countdown' | 'playing' | 'resultPending' | 'result';
 type Denomination = 5 | 10 | 20 | 50 | 100 | 200;
+type BubbleType = 'coin' | 'danger';
 
 type BubbleConfig = {
   id: string;
-  denomination: Denomination;
+  type: BubbleType;
+  denomination: Denomination | 0;
   spawnAtMs: number;
   size: number;
   baseX: number;
   amplitude: number;
   periodMs: number;
   phaseOffset: number;
+  speedMultiplier: number;
+  penaltyAmount?: number;
 };
 
 type ActiveBubble = BubbleConfig & {
@@ -45,6 +49,7 @@ type ParticleBurst = {
   x: number;
   y: number;
   createdAt: number;
+  burstType: BubbleType;
 };
 
 type FloatingLabel = {
@@ -53,6 +58,7 @@ type FloatingLabel = {
   y: number;
   value: number;
   createdAt: number;
+  labelType: BubbleType;
 };
 
 type CoinKey = Denomination;
@@ -119,7 +125,7 @@ function easeOutCubic(value: number) {
 }
 
 function prepareBubbles(scaleFactor: number, screenWidth: number) {
-  const rng = mulberry32(1);
+  const rng = mulberry32(Date.now() ^ (Math.random() * 0xffffffff));
   const denoms: Denomination[] = [];
 
   (Object.entries(DENOMINATION_COUNTS) as Array<[string, number]>).forEach(([key, count]) => {
@@ -130,27 +136,62 @@ function prepareBubbles(scaleFactor: number, screenWidth: number) {
   });
 
   const shuffledDenoms = shuffleArray(denoms, rng);
-  const spawnTimes = Array.from({ length: TOTAL_BUBBLES }, (_, index) => {
-    const base = index * (GAME_DURATION_MS / TOTAL_BUBBLES);
-    const jitter = (rng() * 2 - 1) * 300;
+  const coinSpawnTimes = Array.from({ length: TOTAL_BUBBLES }, (_, index) => {
+    let base: number;
+    if (index < 12) {
+      base = (index / 12) * 15_000;
+    } else {
+      base = 15_000 + ((index - 12) / 23) * 14_600;
+    }
+    const jitter = (rng() * 2 - 1) * 250;
     return clamp(base + jitter, 0, GAME_DURATION_MS - 400);
   }).sort((left, right) => left - right);
 
   const margin = 50 * scaleFactor;
 
-  return Array.from({ length: TOTAL_BUBBLES }, (_, index) => {
+  const coinBubbles = Array.from({ length: TOTAL_BUBBLES }, (_, index) => {
     const size = (64 + rng() * 32) * scaleFactor;
     return {
       id: `bubble-${index}`,
+      type: 'coin' as BubbleType,
       denomination: shuffledDenoms[index],
-      spawnAtMs: spawnTimes[index],
+      spawnAtMs: coinSpawnTimes[index],
       size,
       baseX: clamp(margin + rng() * (screenWidth - margin * 2), margin, screenWidth - margin),
       amplitude: (12 + rng() * 6) * scaleFactor,
       periodMs: 1200 + rng() * 600,
       phaseOffset: rng() * Math.PI * 2,
+      speedMultiplier: 0.85 + rng() * 0.3,
     } satisfies BubbleConfig;
   });
+
+  const dangerSpawnTimes = [
+    10_000 + rng() * 8_000,
+    12_000 + rng() * 6_000,
+    18_000 + rng() * 6_000,
+    20_000 + rng() * 4_000,
+    24_000 + rng() * 4_000,
+    26_000 + rng() * 3_000,
+  ].map((value) => clamp(value, 0, GAME_DURATION_MS - 400));
+
+  const dangerBubbles = dangerSpawnTimes.map((spawnAtMs, index) => {
+    const size = (72 + rng() * 20) * scaleFactor;
+    return {
+      id: `danger-${index}`,
+      type: 'danger' as BubbleType,
+      denomination: 0 as Denomination,
+      penaltyAmount: [30, 50, 75][index % 3],
+      spawnAtMs,
+      size,
+      baseX: clamp(margin + rng() * (screenWidth - margin * 2), margin, screenWidth - margin),
+      amplitude: (10 + rng() * 8) * scaleFactor,
+      periodMs: 1000 + rng() * 800,
+      phaseOffset: rng() * Math.PI * 2,
+      speedMultiplier: 1.0 + rng() * 0.2,
+    } satisfies BubbleConfig;
+  });
+
+  return [...coinBubbles, ...dangerBubbles].sort((left, right) => left.spawnAtMs - right.spawnAtMs);
 }
 
 function bubbleHitSlop(size: number) {
@@ -198,26 +239,55 @@ function BubbleItem({
           top,
         },
       ]}>
-      <View style={styles.bubbleBody}>
+      {bubble.type === 'danger' ? (
         <View
-          style={[
-            styles.shine,
-            {
-              width: bubble.size * 0.36,
-              height: bubble.size * 0.22,
-              borderRadius: bubble.size * 0.18,
-            },
-          ]}
-        />
-
-        <Image
-          source={COIN_ASSETS[bubble.denomination]}
-          resizeMode="contain"
-          style={{ width: bubble.size * 0.55, height: bubble.size * 0.55 }}
-        />
-
-        <Text style={[styles.bubbleLabel, { fontSize: Math.max(10, bubble.size * 0.12) }]}>{`${bubble.denomination} DZD`}</Text>
-      </View>
+          style={{
+            width: bubble.size,
+            height: bubble.size,
+            borderRadius: bubble.size / 2,
+            backgroundColor: 'rgba(220, 38, 38, 0.85)',
+            borderWidth: 2,
+            borderColor: '#ff6b6b',
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#ff6b6b',
+            shadowOpacity: 0.45,
+            shadowRadius: 10,
+            shadowOffset: { width: 0, height: 0 },
+          }}>
+          <Text style={{ color: '#fff', fontSize: bubble.size * 0.45, lineHeight: bubble.size * 0.55, fontWeight: '900' }}>✕</Text>
+          <Text
+            style={{
+              color: '#fff',
+              fontSize: Math.max(9, bubble.size * 0.13),
+              fontWeight: '900',
+              marginTop: -4,
+            }}>
+            {`-${bubble.penaltyAmount ?? 50} DZD`}
+          </Text>
+        </View>
+      ) : (
+        <View style={{ width: bubble.size, height: bubble.size, position: 'relative' }}>
+          <Image
+            source={COIN_ASSETS[bubble.denomination as Denomination]}
+            resizeMode="contain"
+            style={{ width: bubble.size, height: bubble.size }}
+          />
+          <Text
+            style={[
+              styles.bubbleLabel,
+              {
+                position: 'absolute',
+                bottom: -18,
+                width: bubble.size,
+                textAlign: 'center',
+                fontSize: Math.max(10, bubble.size * 0.14),
+              },
+            ]}>
+            {`${bubble.denomination} DZD`}
+          </Text>
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -284,16 +354,16 @@ export default function Game1Screen() {
     // TODO: wire celebration/applause SFX if a project asset exists.
   }, []);
 
-  const addBurst = React.useCallback((x: number, y: number) => {
+  const addBurst = React.useCallback((x: number, y: number, burstType: BubbleType = 'coin') => {
     const now = performance.now();
     const burstId = `burst-${now}-${Math.random().toString(36).slice(2)}`;
-    setParticles((current) => [...current, { id: burstId, x, y, createdAt: now }]);
+    setParticles((current) => [...current, { id: burstId, x, y, createdAt: now, burstType }]);
   }, []);
 
-  const addFloatingLabel = React.useCallback((x: number, y: number, value: number) => {
+  const addFloatingLabel = React.useCallback((x: number, y: number, value: number, labelType: BubbleType = 'coin') => {
     const now = performance.now();
     const labelId = `label-${now}-${Math.random().toString(36).slice(2)}`;
-    setLabels((current) => [...current, { id: labelId, x, y, value, createdAt: now }]);
+    setLabels((current) => [...current, { id: labelId, x, y, value, createdAt: now, labelType }]);
   }, []);
 
   const triggerTimerPulse = React.useCallback(() => {
@@ -428,7 +498,9 @@ export default function Game1Screen() {
       lastDisplayedSecondsRef.current = remainingSeconds;
     }
 
-    const speed = (80 + (elapsedMs / GAME_DURATION_MS) * 120) * scaleFactor;
+    const progress = elapsedMs / GAME_DURATION_MS;
+    const easedProgress = progress * progress;
+    const speed = (70 + easedProgress * 160) * scaleFactor;
     const spawnList = bubbleQueueRef.current;
 
     while (bubbleIndexRef.current < spawnList.length && spawnList[bubbleIndexRef.current].spawnAtMs <= elapsedMs) {
@@ -450,10 +522,14 @@ export default function Game1Screen() {
         return current;
       }
 
-      const deltaMs = clamp(nowMs - prevFrame, 0, 50);
+      const deltaMs = clamp(nowMs - prevFrame, 0, 32);
       const next = current
         .map((bubble) => {
-          const nextY = bubble.y - speed * deltaMs / 1000;
+          if (poppedBubbleIdsRef.current.has(bubble.id)) {
+            return null;
+          }
+
+          const nextY = bubble.y - speed * bubble.speedMultiplier * deltaMs / 1000;
           if (nextY + bubble.size / 2 < 0) {
             return null;
           }
@@ -476,7 +552,6 @@ export default function Game1Screen() {
       return;
     }
 
-    lastFrameRef.current = nowMs;
   }, [finishRound, height, scaleFactor]);
 
   const updateBubblesRef = React.useRef(updateBubbles);
@@ -597,17 +672,19 @@ export default function Game1Screen() {
       }
       poppedBubbleIdsRef.current.add(bubble.id);
 
-      setBubbles((current) => {
-        if (!current.some((entry) => entry.id === bubble.id)) {
-          return current;
-        }
-        return current.filter((entry) => entry.id !== bubble.id);
-      });
-
       playPopSfx();
+
+      if (bubble.type === 'danger') {
+        const penalty = bubble.penaltyAmount ?? 50;
+        addBurst(tapX, tapY, 'danger');
+        addFloatingLabel(tapX, tapY, -penalty, 'danger');
+        setSessionTotal((current) => Math.max(0, current - penalty));
+        return;
+      }
+
       addBurst(tapX, tapY);
-      addFloatingLabel(tapX, tapY, bubble.denomination);
-      setSessionTotal((current) => current + bubble.denomination);
+      addFloatingLabel(tapX, tapY, bubble.denomination as Denomination);
+      setSessionTotal((current) => current + (bubble.denomination as Denomination));
     },
     [addBurst, addFloatingLabel, phase, playPopSfx]
   );
@@ -700,7 +777,9 @@ export default function Game1Screen() {
                       opacity: 1 - progress,
                       width: 6 + index % 3 * 2,
                       height: 6 + index % 3 * 2,
-                      backgroundColor: isGold ? '#C9A84C' : '#ffffff',
+                      backgroundColor: particle.burstType === 'danger'
+                        ? (isGold ? '#ef4444' : '#fca5a5')
+                        : (isGold ? '#C9A84C' : '#ffffff'),
                       left: particle.x + Math.cos(angle) * distance,
                       top: particle.y + Math.sin(angle) * distance,
                     },
@@ -723,9 +802,10 @@ export default function Game1Screen() {
                     transform: [{ translateY: -50 * easeOutCubic(progress) }],
                     left: label.x,
                     top: label.y,
+                    color: label.labelType === 'danger' ? '#ef4444' : '#C9A84C',
                   },
                 ]}>
-                {`+${label.value} DZD`}
+                {`${label.value > 0 ? '+' : ''}${label.value} DZD`}
               </Text>
             );
           })}
@@ -844,25 +924,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 99999,
-  },
-  bubbleBody: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,1)',
-    overflow: 'hidden',
-  },
-  shine: {
-    position: 'absolute',
-    left: '14%',
-    top: '14%',
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    transform: [{ rotate: '-22deg' }],
   },
   bubbleLabel: {
     color: '#fff',

@@ -65,18 +65,18 @@ type CoinKey = Denomination;
 
 const GAME_DURATION_MS = 30_000;
 const PRE_COUNTDOWN = ['3', '2', '1', 'GO'];
-const TOTAL_BUBBLES = 35;
+const TOTAL_BUBBLES = 22;
 const RESULT_DELAY_MS = 600;
 const RESULT_FADE_MS = 300;
 const COUNT_UP_MS = 1000;
 const REF_HEIGHT = 812;
 
 const DENOMINATION_COUNTS: Record<Denomination, number> = {
-  5: 7,
-  10: 7,
-  20: 7,
-  50: 6,
-  100: 5,
+  5: 4,
+  10: 4,
+  20: 4,
+  50: 4,
+  100: 3,
   200: 3,
 };
 
@@ -165,14 +165,16 @@ function prepareBubbles(scaleFactor: number, screenWidth: number) {
     } satisfies BubbleConfig;
   });
 
-  const dangerSpawnTimes = [
-    10_000 + rng() * 8_000,
-    12_000 + rng() * 6_000,
-    18_000 + rng() * 6_000,
-    20_000 + rng() * 4_000,
-    24_000 + rng() * 4_000,
-    26_000 + rng() * 3_000,
-  ].map((value) => clamp(value, 0, GAME_DURATION_MS - 400));
+    const dangerSpawnTimes = [
+    8_000  + rng() * 4_000,
+    12_000 + rng() * 4_000,
+    14_000 + rng() * 3_000,
+    17_000 + rng() * 3_000,
+    20_000 + rng() * 3_000,
+    22_000 + rng() * 3_000,
+    25_000 + rng() * 3_000,
+    27_000 + rng() * 2_000,
+    ].map((value) => clamp(value, 0, GAME_DURATION_MS - 400));
 
   const dangerBubbles = dangerSpawnTimes.map((spawnAtMs, index) => {
     const size = (72 + rng() * 20) * scaleFactor;
@@ -180,7 +182,7 @@ function prepareBubbles(scaleFactor: number, screenWidth: number) {
       id: `danger-${index}`,
       type: 'danger' as BubbleType,
       denomination: 0 as Denomination,
-      penaltyAmount: [30, 50, 75][index % 3],
+      penaltyAmount: [30, 50, 30, 75, 50, 30, 75, 50][index % 8],
       spawnAtMs,
       size,
       baseX: clamp(margin + rng() * (screenWidth - margin * 2), margin, screenWidth - margin),
@@ -273,19 +275,6 @@ function BubbleItem({
             resizeMode="contain"
             style={{ width: bubble.size, height: bubble.size }}
           />
-          <Text
-            style={[
-              styles.bubbleLabel,
-              {
-                position: 'absolute',
-                bottom: -18,
-                width: bubble.size,
-                textAlign: 'center',
-                fontSize: Math.max(10, bubble.size * 0.14),
-              },
-            ]}>
-            {`${bubble.denomination} DZD`}
-          </Text>
         </View>
       )}
     </Pressable>
@@ -332,6 +321,7 @@ export default function Game1Screen() {
   const resultTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const countUpRafRef = React.useRef<number | null>(null);
   const resultActionedRef = React.useRef(false);
+  const onCoinMissedRef = React.useRef<() => void>(() => {});
   const [gameFrozen, setGameFrozen] = React.useState(false);
 
   React.useEffect(() => {
@@ -472,6 +462,14 @@ export default function Game1Screen() {
     });
   }, [router, t]);
 
+  const handleCoinMissed = React.useCallback(() => {
+  setSessionTotal((current) => Math.max(0, current - 5));
+}, []);
+
+React.useEffect(() => {
+  onCoinMissedRef.current = handleCoinMissed;
+}, [handleCoinMissed]);
+
   const updateBubbles = React.useCallback((nowMs: number) => {
     if (exitDialogOpenRef.current) {
       lastFrameRef.current = nowMs;
@@ -544,10 +542,13 @@ export default function Game1Screen() {
             return null;
           }
 
-          const nextY = bubble.y - currentSpeed * bubble.speedMultiplier * deltaMs / 1000;
-          if (nextY + bubble.size / 2 < 0) {
+            const nextY = bubble.y - currentSpeed * bubble.speedMultiplier * deltaMs / 1000;
+            if (nextY + bubble.size / 2 < 0) {
+            if (bubble.type === 'coin') {
+                onCoinMissedRef.current();
+            }
             return null;
-          }
+            }
 
           return { ...bubble, y: nextY };
         })

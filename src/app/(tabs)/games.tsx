@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { Grayscale } from 'react-native-color-matrix-image-filters';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Spacing } from '@/constants/theme';
@@ -58,14 +59,13 @@ export default function GamesScreen() {
           const completed = status === 'completed';
 
             const imageStyles: any[] = [styles.levelImage];
-            if (locked) {
-              // apply desaturated style; web supports CSS filter
-              if (Platform.OS === 'web') {
-                imageStyles.push({ filter: 'grayscale(100%) brightness(0.6)' });
-              } else {
-                imageStyles.push({ opacity: 0.6 });
-              }
-            }
+            const imageElement = (
+              <Image
+                source={levelImages[level.id - 1]}
+                style={imageStyles}
+                resizeMode="contain"
+              />
+            );
 
             return (
               <Pressable
@@ -78,11 +78,21 @@ export default function GamesScreen() {
                 disabled={locked}
                 style={[styles.levelButton, { left: level.x, top: level.y }]}
               >
-                <Image
-                  source={levelImages[level.id - 1]}
-                  style={imageStyles}
-                  resizeMode="contain"
-                />
+                {locked ? (
+                  Platform.OS === 'web' ? (
+                    <Image
+                      source={levelImages[level.id - 1]}
+                      style={[...imageStyles, { filter: 'grayscale(100%) brightness(0.6)' }]}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Grayscale>
+                      {imageElement}
+                    </Grayscale>
+                  )
+                ) : (
+                  imageElement
+                )}
                 {completed ? (
                   <View style={styles.completedBadge} pointerEvents="none">
                     <Text style={styles.completedText}>✓</Text>

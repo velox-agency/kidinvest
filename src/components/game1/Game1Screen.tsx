@@ -306,7 +306,7 @@ export default function Game1Screen() {
   const [countdownIndex, setCountdownIndex] = React.useState(0);
   const [displayRemainingMs, setDisplayRemainingMs] = React.useState(GAME_DURATION_MS);
   const [sessionTotal, setSessionTotal] = React.useState(0);
-  const [currentTimeMs, setCurrentTimeMs] = React.useState(0);
+  const currentTimeMsRef = React.useRef(0);
   const [bubbles, setBubbles] = React.useState<ActiveBubble[]>([]);
   const [particles, setParticles] = React.useState<ParticleBurst[]>([]);
   const [labels, setLabels] = React.useState<FloatingLabel[]>([]);
@@ -486,7 +486,7 @@ export default function Game1Screen() {
     const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs);
     const remainingSeconds = Math.ceil(remainingMs / 1000);
 
-    setCurrentTimeMs(elapsedMs);
+    currentTimeMsRef.current = elapsedMs;
     setDisplayRemainingMs(remainingMs);
     setParticles((current) => current.filter((particle) => nowMs - particle.createdAt <= 400));
     setLabels((current) => current.filter((label) => nowMs - label.createdAt <= 600));
@@ -498,38 +498,53 @@ export default function Game1Screen() {
       lastDisplayedSecondsRef.current = remainingSeconds;
     }
 
+    // DEBUG: log every second
+    const debugSecond = Math.floor(elapsedMs / 1000);
+    if (debugSecond !== (updateBubbles as any)._lastLogSecond) {
+      (updateBubbles as any)._lastLogSecond = debugSecond;
+      console.log('[TICK] second:', debugSecond, 'bubbles in state:', bubbles.length);
+    }
+
     const progress = elapsedMs / GAME_DURATION_MS;
     const easedProgress = progress * progress;
     const speed = (70 + easedProgress * 160) * scaleFactor;
     const spawnList = bubbleQueueRef.current;
 
+    const toSpawn: ActiveBubble[] = [];
+
     while (bubbleIndexRef.current < spawnList.length && spawnList[bubbleIndexRef.current].spawnAtMs <= elapsedMs) {
       const config = spawnList[bubbleIndexRef.current];
       bubbleIndexRef.current += 1;
 
-      setBubbles((current) => [
-        ...current,
-        {
-          ...config,
-          y: height + config.size / 2 + 12 * scaleFactor,
-          spawnedAtMs: elapsedMs,
-        },
-      ]);
+      toSpawn.push({
+        ...config,
+        y: height + config.size / 2 + 12 * scaleFactor,
+        spawnedAtMs: elapsedMs,
+      });
     }
 
+    const deltaMs = clamp(nowMs - prevFrame, 0, 32);
+    const currentSpeed = speed;
+    const currentPopped = new Set(poppedBubbleIdsRef.current);
+
     setBubbles((current) => {
-      if (current.length === 0) {
-        return current;
+      const withSpawned = toSpawn.length > 0 ? [...current, ...toSpawn] : current;
+
+      if (withSpawned.length === 0) {
+        return withSpawned;
       }
 
-      const deltaMs = clamp(nowMs - prevFrame, 0, 32);
-      const next = current
+      const next = withSpawned
         .map((bubble) => {
-          if (poppedBubbleIdsRef.current.has(bubble.id)) {
+          if (toSpawn.some((spawnedBubble) => spawnedBubble.id === bubble.id)) {
+            return bubble;
+          }
+
+          if (currentPopped.has(bubble.id)) {
             return null;
           }
 
-          const nextY = bubble.y - speed * bubble.speedMultiplier * deltaMs / 1000;
+          const nextY = bubble.y - currentSpeed * bubble.speedMultiplier * deltaMs / 1000;
           if (nextY + bubble.size / 2 < 0) {
             return null;
           }
@@ -753,7 +768,7 @@ export default function Game1Screen() {
           {bubbles.map((bubble) => (
             <BubbleItem
               bubble={bubble}
-              currentTimeMs={currentTimeMs}
+              currentTimeMs={currentTimeMsRef.current}
               frozen={gameFrozen}
               key={bubble.id}
               onPop={handleBubblePop}
@@ -921,6 +936,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   bubble: {
+    position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 99999,

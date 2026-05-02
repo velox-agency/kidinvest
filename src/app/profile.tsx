@@ -3,7 +3,7 @@ import { useProgressStore } from '@/store/progressStore';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
@@ -27,9 +27,29 @@ export default function ProfileScreen() {
   const currentLang = profile?.language ?? 'en';
 
   const setLang = useProgressStore((s) => s.setLanguage);
+  const eraseAllData = useProgressStore((s) => s.eraseAllData);
 
   const onLanguagePress = async (lang: 'ar' | 'fr' | 'en') => {
     await setLang(lang);
+  };
+
+  const onEraseAllDataPress = () => {
+    Alert.alert(
+      t('profile_erase_title'),
+      t('profile_erase_confirm'),
+      [
+        { text: t('profile_erase_no'), style: 'cancel' },
+        {
+          text: t('profile_erase_yes'),
+          style: 'destructive',
+          onPress: () => {
+            void eraseAllData().then(() => {
+              router.replace('/onboarding');
+            });
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -72,6 +92,12 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.section}>
+        <Pressable accessibilityRole="button" onPress={onEraseAllDataPress} style={styles.eraseButton}>
+          <Text style={styles.eraseButtonText}>{t('profile_erase_all_data')}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Badges</Text>
         <View style={styles.badgeRow}>
           {badges.length === 0 ? <Text style={styles.badgeEmpty}>No badges yet</Text> : badges.map((b) => (
@@ -109,6 +135,19 @@ const styles = StyleSheet.create({
   langChip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', marginRight: Spacing.two },
   langActive: { backgroundColor: '#FACC15', borderColor: '#FACC15' },
   langText: { fontWeight: '800' },
+  eraseButton: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(248, 113, 113, 0.45)',
+    backgroundColor: 'rgba(248, 113, 113, 0.12)',
+    paddingVertical: Spacing.three,
+    alignItems: 'center',
+  },
+  eraseButtonText: {
+    color: '#FCA5A5',
+    fontWeight: '900',
+    fontSize: 15,
+  },
   badgeRow: { flexDirection: 'row', gap: Spacing.two, flexWrap: 'wrap' },
   badgeItem: { backgroundColor: 'rgba(255,255,255,0.04)', padding: 8, borderRadius: 8 },
   badgeText: { color: '#FFF', fontWeight: '700' },

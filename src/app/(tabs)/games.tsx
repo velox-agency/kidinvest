@@ -1,9 +1,11 @@
+import { useProgressStore } from '@/store/progressStore';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
   Dimensions,
   Image,
   ImageBackground,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -40,6 +42,7 @@ const levels = [
 export default function GamesScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const levelsMap = useProgressStore((s) => s.levels);
 
   return (
     <ImageBackground
@@ -49,20 +52,45 @@ export default function GamesScreen() {
       <View style={styles.overlay} />
 
       <View style={styles.levelLayer}>
-        {levels.map((level) => (
-          <Pressable
-            key={level.id}
-            onPress={() => router.push(`/level/${String(level.id)}`)}
-            hitSlop={10}
-            style={[styles.levelButton, { left: level.x, top: level.y }]}
-          >
-            <Image
-              source={levelImages[level.id - 1]}
-              style={styles.levelImage}
-              resizeMode="contain"
-            />
-          </Pressable>
-        ))}
+        {levels.map((level) => {
+          const status = levelsMap[String(level.id)];
+          const locked = status === 'locked';
+          const completed = status === 'completed';
+
+            const imageStyles: any[] = [styles.levelImage];
+            if (locked) {
+              // apply desaturated style; web supports CSS filter
+              if (Platform.OS === 'web') {
+                imageStyles.push({ filter: 'grayscale(100%) brightness(0.6)' });
+              } else {
+                imageStyles.push({ opacity: 0.6 });
+              }
+            }
+
+            return (
+              <Pressable
+                key={level.id}
+                onPress={() => {
+                  if (locked) return;
+                  router.push(`/level/${String(level.id)}`);
+                }}
+                hitSlop={10}
+                disabled={locked}
+                style={[styles.levelButton, { left: level.x, top: level.y }]}
+              >
+                <Image
+                  source={levelImages[level.id - 1]}
+                  style={imageStyles}
+                  resizeMode="contain"
+                />
+                {completed ? (
+                  <View style={styles.completedBadge} pointerEvents="none">
+                    <Text style={styles.completedText}>✓</Text>
+                  </View>
+                ) : null}
+              </Pressable>
+            );
+          })}
       </View>
 
       <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
@@ -99,6 +127,25 @@ const styles = StyleSheet.create({
   levelImage: {
     width: 72,
     height: 72,
+  },
+  completedBadge: {
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#10B981',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  completedText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '900',
+    lineHeight: 14,
   },
   safeArea: {
     flex: 1,

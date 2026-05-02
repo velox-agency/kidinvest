@@ -1,23 +1,34 @@
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useProgressStore } from '@/store/progressStore';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+
+import Game1Screen from '@/components/game1/Game1Screen';
 
 export default function LevelPage() {
   const { id } = useLocalSearchParams();
-  const router = useRouter();
-  const colorScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
-  const colors = Colors[colorScheme];
 
   const levelId = Number(id);
+
+  if (levelId === 1) {
+    return <Game1Screen />;
+  }
+
+  return <LegacyLevelPage levelId={levelId} />;
+}
+
+function LegacyLevelPage({ levelId }: { levelId: number }) {
+  const router = useRouter();
   const status = useProgressStore((s) => s.levels[String(levelId)]);
   const completeLevel = useProgressStore((s) => s.completeLevel);
+  const addXP = useProgressStore((s) => s.addXP);
 
   const [loading, setLoading] = React.useState(false);
 
   const handleComplete = async () => {
     setLoading(true);
+    await addXP(50);
     await completeLevel(levelId);
     setLoading(false);
     router.push('/games');
@@ -25,7 +36,7 @@ export default function LevelPage() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Level {id}</Text>
+      <Text style={styles.title}>Level {levelId}</Text>
 
       {status === 'available' ? (
         <Pressable

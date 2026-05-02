@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import NowPlayingBar from '@/components/music/NowPlayingBar';
 import SearchBar from '@/components/music/SearchBar';
+import type { Song } from '@/components/music/SongCard';
 import SongList from '@/components/music/SongList';
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 
@@ -33,7 +34,7 @@ export default function MusicScreen() {
     return songs.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
   }, [query, songs]);
 
-  const onPlay = useCallback((song) => {
+  const onPlay = useCallback((song: Song) => {
     setPlayingId(song.id);
     setIsPlaying(true);
   }, []);

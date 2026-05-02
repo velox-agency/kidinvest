@@ -245,6 +245,7 @@ export default function Game1Screen() {
   const [timerPulse] = React.useState(() => new Animated.Value(1));
   const [countUpCurrency, setCountUpCurrency] = React.useState(0);
   const [countUpXP, setCountUpXP] = React.useState(0);
+  const phaseRef = React.useRef<Phase>('countdown');
 
   const bubbleQueueRef = React.useRef(plannedBubbles);
   const bubbleIndexRef = React.useRef(0);
@@ -262,6 +263,10 @@ export default function Game1Screen() {
   const countUpRafRef = React.useRef<number | null>(null);
   const resultActionedRef = React.useRef(false);
   const [gameFrozen, setGameFrozen] = React.useState(false);
+
+  React.useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
   const completeLevel = useProgressStore((state) => state.completeLevel);
   const addCurrency = useProgressStore((state) => state.addCurrency);
@@ -403,6 +408,9 @@ export default function Game1Screen() {
       return;
     }
 
+    const prevFrame = lastFrameRef.current ?? nowMs;
+    lastFrameRef.current = nowMs;
+
     const elapsedMs = clamp(nowMs - (frameStartRef.current ?? nowMs) - pausedAccumulatedRef.current, 0, GAME_DURATION_MS);
     elapsedRef.current = elapsedMs;
     const remainingMs = Math.max(0, GAME_DURATION_MS - elapsedMs);
@@ -438,21 +446,23 @@ export default function Game1Screen() {
     }
 
     setBubbles((current) => {
-      let mutated = false;
+      if (current.length === 0) {
+        return current;
+      }
+
+      const deltaMs = clamp(nowMs - prevFrame, 0, 50);
       const next = current
         .map((bubble) => {
-          const nextY = bubble.y - speed * (nowMs - (lastFrameRef.current ?? nowMs)) / 1000;
+          const nextY = bubble.y - speed * deltaMs / 1000;
           if (nextY + bubble.size / 2 < 0) {
-            mutated = true;
             return null;
           }
 
-          mutated = true;
           return { ...bubble, y: nextY };
         })
         .filter(Boolean) as ActiveBubble[];
 
-      return mutated ? next : current;
+      return next;
     });
 
     if (remainingMs <= 0) {
@@ -467,7 +477,13 @@ export default function Game1Screen() {
     }
 
     lastFrameRef.current = nowMs;
-  }, [finishRound, height, phase, scaleFactor]);
+  }, [finishRound, height, scaleFactor]);
+
+  const updateBubblesRef = React.useRef(updateBubbles);
+
+  React.useEffect(() => {
+    updateBubblesRef.current = updateBubbles;
+  }, [updateBubbles]);
 
   React.useEffect(() => {
     if (phase !== 'countdown') {
@@ -526,11 +542,7 @@ export default function Game1Screen() {
     }
 
     const tick = (now: number) => {
-      if (phase !== 'playing') {
-        return;
-      }
-
-      updateBubbles(now);
+      updateBubblesRef.current(now);
 
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -543,7 +555,7 @@ export default function Game1Screen() {
         rafRef.current = null;
       }
     };
-  }, [phase, triggerTimerPulse, updateBubbles]);
+  }, [phase]);
 
   React.useEffect(() => {
     if (phase !== 'result') {
@@ -829,9 +841,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   bubble: {
-    position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 99999,
   },
   bubbleBody: {
     flex: 1,
@@ -840,9 +852,9 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.35)',
+    borderColor: 'rgba(255,255,255,1)',
     overflow: 'hidden',
   },
   shine: {

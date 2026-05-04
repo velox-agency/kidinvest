@@ -101,12 +101,16 @@
   "game2_path_label_A": "المسار A",
   "game2_path_label_B": "المسار B",
   "game2_path_label_C": "المسار C",
+  "game2_maze_label": "متاهة",
   "game2_timeup": "انتهى الوقت! حاول مرة أخرى.",
   "game2_timeup_sub": "كدت تصل! هل يمكنك حل المتاهة في الوقت المحدد؟",
   "game2_retry_button": "حاول مرة أخرى",
   "game2_go_back": "رجوع",
   "game2_moves": "خطوات",
   "game2_time_bonus": "مكافأة الوقت",
+  "game2_legend_wall": "جدار",
+  "game2_legend_path": "طريق",
+  "game2_legend_exit": "المخرج",
   "music": {
     "title": "الموسيقى",
     "description": "استمتع بلحظة تركيز أهدأ مع موسيقى لطيفة."

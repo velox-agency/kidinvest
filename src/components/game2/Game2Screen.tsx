@@ -22,33 +22,75 @@ import { Spacing } from '@/constants/theme';
 import { useProgressStore } from '@/store/progressStore';
 
 type GamePhase = 'playing' | 'timeup' | 'success';
-
 type Cell = 0 | 1;
-type CellPosition = { row: number; col: number };
-
 type Direction = 'up' | 'down' | 'left' | 'right';
+type MazeDef = {
+  grid: Cell[][];
+  start: { row: number; col: number };
+  exit: { row: number; col: number };
+  name: string;
+};
 
 const GOLD = '#C9A84C';
-const MAZE_ROWS = 9;
-const MAZE_COLS = 7;
-const START_ROW = 8;
-const START_COL = 3;
-const EXIT_ROW = 0;
-const EXIT_COL = 3;
+const MAZE_COLS = 9;
+const MAZE_ROWS = 11;
+const LEGEND_HEIGHT = 28;
+const TIMER_START_MS = 60_000;
 const REWARD_AMOUNT = 500;
 const REWARD_XP = 50;
-const TIMER_START_MS = 60_000;
 
-const MAZE_GRID: Cell[][] = [
-  [1, 1, 1, 0, 1, 1, 1],
-  [1, 0, 0, 0, 1, 1, 1],
-  [1, 0, 1, 1, 1, 1, 1],
-  [1, 0, 1, 1, 1, 1, 1],
-  [1, 0, 1, 1, 1, 1, 1],
-  [1, 0, 1, 1, 1, 1, 1],
-  [1, 0, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 1, 1, 1],
-  [1, 1, 1, 0, 1, 1, 1],
+const MAZE_1: Cell[][] = [
+  [1, 1, 1, 1, 0, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1, 1, 1, 1],
+  [1, 0, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 1, 1, 1, 1, 1, 1],
+  [1, 0, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1, 1, 1, 1],
+  [1, 1, 1, 0, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1, 1, 1, 1],
+  [1, 0, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 1, 1, 1, 1, 1],
+  [1, 1, 1, 0, 1, 1, 1, 1, 1],
+];
+const MAZE_1_START = { row: 10, col: 3 };
+const MAZE_1_EXIT = { row: 0, col: 4 };
+
+const MAZE_2: Cell[][] = [
+  [1, 1, 1, 1, 1, 0, 1, 1, 1],
+  [1, 1, 1, 0, 0, 0, 1, 1, 1],
+  [1, 1, 1, 1, 0, 1, 1, 1, 1],
+  [1, 1, 1, 1, 0, 0, 0, 1, 1],
+  [1, 1, 1, 1, 1, 0, 1, 1, 1],
+  [1, 1, 1, 0, 0, 0, 0, 1, 1],
+  [1, 1, 1, 0, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1, 1, 1, 1],
+  [1, 0, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1, 1, 1, 1],
+  [1, 1, 1, 1, 0, 1, 1, 1, 1],
+];
+const MAZE_2_START = { row: 10, col: 4 };
+const MAZE_2_EXIT = { row: 0, col: 5 };
+
+const MAZE_3: Cell[][] = [
+  [1, 1, 1, 0, 1, 1, 1, 1, 1],
+  [1, 1, 1, 0, 0, 0, 1, 1, 1],
+  [1, 1, 1, 1, 1, 0, 1, 1, 1],
+  [1, 1, 1, 0, 0, 0, 0, 1, 1],
+  [1, 1, 1, 0, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1, 1, 1, 1],
+  [1, 0, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1, 1, 1, 1],
+  [1, 1, 1, 0, 1, 1, 1, 1, 1],
+  [1, 1, 1, 0, 0, 1, 1, 1, 1],
+  [1, 1, 1, 1, 0, 1, 1, 1, 1],
+];
+const MAZE_3_START = { row: 10, col: 4 };
+const MAZE_3_EXIT = { row: 0, col: 3 };
+
+const MAZES: MazeDef[] = [
+  { grid: MAZE_1, start: MAZE_1_START, exit: MAZE_1_EXIT, name: 'Maze 1' },
+  { grid: MAZE_2, start: MAZE_2_START, exit: MAZE_2_EXIT, name: 'Maze 2' },
+  { grid: MAZE_3, start: MAZE_3_START, exit: MAZE_3_EXIT, name: 'Maze 3' },
 ];
 
 function formatClock(millisecondsRemaining: number) {
@@ -71,24 +113,52 @@ function getCellColor({
   isOnPath: boolean;
   isMovable: boolean;
 }) {
-  if (isWall) return '#0f172a';
+  if (isWall) return '#1a0a00';
   if (isPlayer) return GOLD;
-  if (isExit) return '#10b981';
+  if (isExit) return '#064e3b';
   if (isStart) return '#1e3a5f';
-  if (isMovable) return 'rgba(201, 168, 76, 0.35)';
-  if (isOnPath) return 'rgba(201, 168, 76, 0.22)';
-  return '#1a2744';
+  if (isMovable) return '#1a3a6e';
+  if (isOnPath) return '#0f2a50';
+  return '#0d1f3c';
 }
 
-function isAdjacentCell(from: CellPosition, to: CellPosition) {
+function isAdjacentCell(fromRow: number, fromCol: number, toRow: number, toCol: number) {
   return (
-    (Math.abs(from.row - to.row) === 1 && from.col === to.col) ||
-    (Math.abs(from.col - to.col) === 1 && from.row === to.row)
+    (Math.abs(fromRow - toRow) === 1 && fromCol === toCol) ||
+    (Math.abs(fromCol - toCol) === 1 && fromRow === toRow)
   );
 }
 
-function containsCell(cells: CellPosition[], row: number, col: number) {
+function containsCell(cells: Array<{ row: number; col: number }>, row: number, col: number) {
   return cells.some((cell) => cell.row === row && cell.col === col);
+}
+
+function WallCell({ cellSize, rowIndex, colIndex }: { cellSize: number; rowIndex: number; colIndex: number }) {
+  return (
+    <View
+      style={[
+        styles.cell,
+        {
+          left: colIndex * cellSize,
+          top: rowIndex * cellSize,
+          width: cellSize,
+          height: cellSize,
+          backgroundColor: '#1a0a00',
+        },
+      ]}>
+      <View style={styles.wallMortarTop} />
+      <View style={styles.wallMortarBottom} />
+      <View
+        style={[
+          styles.wallMortarVertical,
+          {
+            left: rowIndex % 2 === 0 ? cellSize / 2 : cellSize / 4,
+          },
+        ]}
+      />
+      <View style={styles.wallBrickFace} />
+    </View>
+  );
 }
 
 export default function Game2Screen() {
@@ -103,14 +173,18 @@ export default function Game2Screen() {
   const addCurrency = useProgressStore((state) => state.addCurrency);
   const addXP = useProgressStore((state) => state.addXP);
 
+  const initialMazeIndex = React.useRef(Math.floor(Math.random() * MAZES.length)).current;
+  const [mazeIndex, setMazeIndex] = React.useState(initialMazeIndex);
+  const currentMaze = MAZES[mazeIndex];
+
   const [gamePhase, setGamePhase] = React.useState<GamePhase>('playing');
-  const [playerRow, setPlayerRow] = React.useState(START_ROW);
-  const [playerCol, setPlayerCol] = React.useState(START_COL);
-  const [visitedCells, setVisitedCells] = React.useState<CellPosition[]>([
-    { row: START_ROW, col: START_COL },
+  const [playerRow, setPlayerRow] = React.useState(currentMaze.start.row);
+  const [playerCol, setPlayerCol] = React.useState(currentMaze.start.col);
+  const [visitedCells, setVisitedCells] = React.useState<Array<{ row: number; col: number }>>([
+    { row: currentMaze.start.row, col: currentMaze.start.col },
   ]);
-  const [moveHistory, setMoveHistory] = React.useState<CellPosition[]>([
-    { row: START_ROW, col: START_COL },
+  const [moveHistory, setMoveHistory] = React.useState<Array<{ row: number; col: number }>>([
+    { row: currentMaze.start.row, col: currentMaze.start.col },
   ]);
   const [moveCount, setMoveCount] = React.useState(0);
   const [timeRemainingMs, setTimeRemainingMs] = React.useState(TIMER_START_MS);
@@ -120,21 +194,74 @@ export default function Game2Screen() {
   const [successOpacity] = React.useState(() => new Animated.Value(0));
   const [timerPulse] = React.useState(() => new Animated.Value(1));
   const [timeBonusSeconds, setTimeBonusSeconds] = React.useState<number | null>(null);
+
   const resultActionedRef = React.useRef(false);
-  const timerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerStartTimeRef = React.useRef<number | null>(null);
+  const timerRafRef = React.useRef<number | null>(null);
+  const timerPausedRef = React.useRef(false);
+  const timerRestartTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeUpFiredRef = React.useRef(false);
+  const handleTimeUpRef = React.useRef<() => void>(() => {});
   const lastPulsedSecondRef = React.useRef<number | null>(null);
 
-  const topBarHeight = insets.top + 56;
-  const bottomControlsHeight = insets.bottom + 120;
+  const TOP_BAR_HEIGHT = insets.top + 56;
+  const BOTTOM_CONTROLS_HEIGHT = insets.bottom + 120;
   const availableWidth = screenWidth - 24;
-  const availableHeight = screenHeight - topBarHeight - bottomControlsHeight - 24;
+  const availableHeight = screenHeight - TOP_BAR_HEIGHT - BOTTOM_CONTROLS_HEIGHT - LEGEND_HEIGHT - 24;
   const cellSize = Math.floor(Math.min(availableWidth / MAZE_COLS, availableHeight / MAZE_ROWS));
   const mazePixelWidth = cellSize * MAZE_COLS;
   const mazePixelHeight = cellSize * MAZE_ROWS;
-  const mazeLeft = Math.max(12, Math.floor((screenWidth - mazePixelWidth) / 2));
-  const mazeTop = topBarHeight + 12;
+  const mazeLeft = Math.floor((screenWidth - mazePixelWidth) / 2);
+  const mazeTop = TOP_BAR_HEIGHT + LEGEND_HEIGHT + 12;
 
-  const playTickPulse = React.useCallback(() => {
+  const startTimer = React.useCallback(() => {
+    timerStartTimeRef.current = performance.now();
+    timerPausedRef.current = false;
+
+    const tick = () => {
+      if (timerPausedRef.current) {
+        return;
+      }
+
+      const elapsed = performance.now() - (timerStartTimeRef.current ?? performance.now());
+      const remaining = Math.max(0, TIMER_START_MS - elapsed);
+      setTimeRemainingMs(remaining);
+
+      if (remaining <= 0) {
+        handleTimeUpRef.current();
+        return;
+      }
+
+      timerRafRef.current = requestAnimationFrame(tick);
+    };
+
+    timerRafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  const stopTimer = React.useCallback(() => {
+    timerPausedRef.current = true;
+    if (timerRafRef.current !== null) {
+      cancelAnimationFrame(timerRafRef.current);
+      timerRafRef.current = null;
+    }
+  }, []);
+
+  const resetTimer = React.useCallback(() => {
+    stopTimer();
+    timeUpFiredRef.current = false;
+    setTimeRemainingMs(TIMER_START_MS);
+
+    if (timerRestartTimeoutRef.current) {
+      clearTimeout(timerRestartTimeoutRef.current);
+    }
+
+    timerRestartTimeoutRef.current = setTimeout(() => {
+      startTimer();
+      timerRestartTimeoutRef.current = null;
+    }, 50);
+  }, [startTimer, stopTimer]);
+
+  const playTimerPulse = React.useCallback(() => {
     timerPulse.setValue(1);
     Animated.sequence([
       Animated.timing(timerPulse, {
@@ -152,45 +279,31 @@ export default function Game2Screen() {
     ]).start();
   }, [timerPulse]);
 
-  const stopTimer = React.useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
+  const playCelebrationSfx = React.useCallback(() => {
+    // TODO: wire celebration SFX if a project asset becomes available.
   }, []);
 
-  const resetMaze = React.useCallback(() => {
-    stopTimer();
-    lastPulsedSecondRef.current = null;
-    setPlayerRow(START_ROW);
-    setPlayerCol(START_COL);
-    setVisitedCells([{ row: START_ROW, col: START_COL }]);
-    setMoveHistory([{ row: START_ROW, col: START_COL }]);
-    setMoveCount(0);
-    setTimeRemainingMs(TIMER_START_MS);
-    setTimeBonusSeconds(null);
-    setTimeupVisible(false);
-    setSuccessVisible(false);
-    timeupOpacity.setValue(0);
-    successOpacity.setValue(0);
-    setGamePhase('playing');
-  }, [stopTimer, successOpacity, timeupOpacity]);
-
   const handleTimeUp = React.useCallback(() => {
-    if (gamePhase !== 'playing') {
+    if (timeUpFiredRef.current) {
       return;
     }
 
+    timeUpFiredRef.current = true;
     stopTimer();
     setGamePhase('timeup');
     setTimeupVisible(true);
     timeupOpacity.setValue(0);
+
     Animated.timing(timeupOpacity, {
       toValue: 1,
       duration: 300,
       useNativeDriver: true,
     }).start();
-  }, [gamePhase, stopTimer, timeupOpacity]);
+  }, [stopTimer, timeupOpacity]);
+
+  React.useEffect(() => {
+    handleTimeUpRef.current = handleTimeUp;
+  }, [handleTimeUp]);
 
   const handleWin = React.useCallback(() => {
     if (gamePhase !== 'playing') {
@@ -202,22 +315,26 @@ export default function Game2Screen() {
     setSuccessVisible(true);
     setTimeBonusSeconds(Math.max(0, Math.floor(timeRemainingMs / 1000)));
     successOpacity.setValue(0);
+
     Animated.timing(successOpacity, {
       toValue: 1,
       duration: 300,
       useNativeDriver: true,
-    }).start(() => {
-      AccessibilityInfo.announceForAccessibility(`${t('game2_well_done')} ${t('game2_edu_message')}`);
+    }).start(({ finished }) => {
+      if (finished) {
+        playCelebrationSfx();
+        AccessibilityInfo.announceForAccessibility(`${t('game2_well_done')} ${t('game2_edu_message')}`);
+      }
     });
-  }, [gamePhase, stopTimer, successOpacity, t, timeRemainingMs]);
+  }, [gamePhase, playCelebrationSfx, stopTimer, successOpacity, t, timeRemainingMs]);
 
   const handleCompleteAndNavigate = React.useCallback(
     async (target: 'next' | 'map') => {
       if (resultActionedRef.current) {
         return;
       }
-      resultActionedRef.current = true;
 
+      resultActionedRef.current = true;
       await addCurrency(REWARD_AMOUNT);
       await addXP(REWARD_XP);
       await completeLevel(2);
@@ -244,59 +361,63 @@ export default function Game2Screen() {
     }
 
     Alert.alert(t('game2_title'), exitMessage, [
-      {
-        text: t('game2_exit_no'),
-        style: 'cancel',
-      },
-      {
-        text: t('game2_exit_yes'),
-        style: 'destructive',
-        onPress: navigateAway,
-      },
-    ], {
-      cancelable: true,
-    });
+      { text: t('game2_exit_no'), style: 'cancel' },
+      { text: t('game2_exit_yes'), style: 'destructive', onPress: navigateAway },
+    ], { cancelable: true });
   }, [router, t]);
 
-  const movePlayer = React.useCallback(
+  const syncMazeState = React.useCallback(() => {
+    const maze = currentMaze;
+    setPlayerRow(maze.start.row);
+    setPlayerCol(maze.start.col);
+    setVisitedCells([{ row: maze.start.row, col: maze.start.col }]);
+    setMoveHistory([{ row: maze.start.row, col: maze.start.col }]);
+    setMoveCount(0);
+    setGamePhase('playing');
+    setTimeupVisible(false);
+    setSuccessVisible(false);
+    setTimeBonusSeconds(null);
+    timeupOpacity.setValue(0);
+    successOpacity.setValue(0);
+    resultActionedRef.current = false;
+  }, [currentMaze, successOpacity, timeupOpacity]);
+
+  React.useEffect(() => {
+    syncMazeState();
+  }, [mazeIndex, syncMazeState]);
+
+  const resetMazeForRetry = React.useCallback(() => {
+    timeUpFiredRef.current = false;
+    lastPulsedSecondRef.current = null;
+    setMazeIndex((prev) => (prev + 1) % MAZES.length);
+    resetTimer();
+  }, [resetTimer]);
+
+  const handleCellPress = React.useCallback(
     (row: number, col: number) => {
       if (gamePhase !== 'playing') {
         return;
       }
 
-      if (row < 0 || row >= MAZE_ROWS || col < 0 || col >= MAZE_COLS) {
+      if (currentMaze.grid[row]?.[col] === 1) {
         return;
       }
 
-      if (MAZE_GRID[row][col] === 1) {
-        return;
-      }
-
-      const current = { row: playerRow, col: playerCol };
-      const target = { row, col };
-
-      if (!isAdjacentCell(current, target)) {
+      if (!isAdjacentCell(playerRow, playerCol, row, col)) {
         return;
       }
 
       setPlayerRow(row);
       setPlayerCol(col);
-      setMoveHistory((prev) => [...prev, target]);
-      setVisitedCells((prev) => (containsCell(prev, row, col) ? prev : [...prev, target]));
+      setMoveHistory((prev) => [...prev, { row, col }]);
+      setVisitedCells((prev) => (containsCell(prev, row, col) ? prev : [...prev, { row, col }]));
       setMoveCount((prev) => prev + 1);
 
-      if (row === EXIT_ROW && col === EXIT_COL) {
+      if (row === currentMaze.exit.row && col === currentMaze.exit.col) {
         handleWin();
       }
     },
-    [gamePhase, handleWin, playerCol, playerRow]
-  );
-
-  const handleCellPress = React.useCallback(
-    (row: number, col: number) => {
-      movePlayer(row, col);
-    },
-    [movePlayer]
+    [currentMaze, gamePhase, handleWin, playerCol, playerRow]
   );
 
   const handleDirectionMove = React.useCallback(
@@ -314,9 +435,9 @@ export default function Game2Screen() {
               ? { row: playerRow, col: playerCol - 1 }
               : { row: playerRow, col: playerCol + 1 };
 
-      movePlayer(next.row, next.col);
+      handleCellPress(next.row, next.col);
     },
-    [gamePhase, movePlayer, playerCol, playerRow]
+    [gamePhase, handleCellPress, playerCol, playerRow]
   );
 
   const handleGoBack = React.useCallback(() => {
@@ -330,6 +451,7 @@ export default function Game2Screen() {
 
     const newHistory = moveHistory.slice(0, -1);
     const previousCell = newHistory[newHistory.length - 1];
+
     setMoveHistory(newHistory);
     setPlayerRow(previousCell.row);
     setPlayerCol(previousCell.col);
@@ -340,47 +462,22 @@ export default function Game2Screen() {
   }, [t]);
 
   React.useEffect(() => {
+    startTimer();
+
+    return () => {
+      stopTimer();
+      if (timerRestartTimeoutRef.current) {
+        clearTimeout(timerRestartTimeoutRef.current);
+      }
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => {
     if (gamePhase !== 'playing') {
       stopTimer();
       return;
     }
-
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-
-    timerRef.current = setInterval(() => {
-      let nextValue = 0;
-
-      setTimeRemainingMs((previous) => {
-        nextValue = Math.max(0, previous - 1000);
-        return nextValue;
-      });
-
-      if (nextValue > 0 && nextValue <= 10_000) {
-        const currentSecond = Math.ceil(nextValue / 1000);
-        if (currentSecond !== lastPulsedSecondRef.current) {
-          lastPulsedSecondRef.current = currentSecond;
-          playTickPulse();
-        }
-      }
-
-      if (nextValue <= 0) {
-        stopTimer();
-        handleTimeUp();
-      }
-    }, 1000);
-
-    return () => {
-      stopTimer();
-    };
-  }, [gamePhase, handleTimeUp, playTickPulse, stopTimer]);
-
-  React.useEffect(() => {
-    return () => {
-      stopTimer();
-    };
-  }, [stopTimer]);
+  }, [gamePhase, stopTimer]);
 
   React.useEffect(() => {
     if (timeupVisible) {
@@ -388,52 +485,74 @@ export default function Game2Screen() {
     }
   }, [t, timeupVisible]);
 
-  const pathButtons = [
-    { direction: 'up' as const, icon: '⬆️', label: 'Up' },
-    { direction: 'left' as const, icon: '⬅️', label: 'Left' },
-    { direction: 'down' as const, icon: '⬇️', label: 'Down' },
-    { direction: 'right' as const, icon: '➡️', label: 'Right' },
-  ];
+  React.useEffect(() => {
+    if (successVisible) {
+      AccessibilityInfo.announceForAccessibility(`${t('game2_well_done')} ${t('game2_edu_message')}`);
+    }
+  }, [successVisible, t]);
 
-  const arrowButtons = isRTL ? [...pathButtons].reverse() : pathButtons;
+  React.useEffect(() => {
+    const currentSecond = Math.ceil(timeRemainingMs / 1000);
+    if (timeRemainingMs > 0 && timeRemainingMs <= 10_000) {
+      if (currentSecond !== lastPulsedSecondRef.current) {
+        lastPulsedSecondRef.current = currentSecond;
+        playTimerPulse();
+      }
+    } else {
+      lastPulsedSecondRef.current = null;
+    }
+  }, [playTimerPulse, timeRemainingMs]);
 
-  const topBarArrow = isRTL ? '↪️' : '←';
-  const backArrow = isRTL ? '↪️' : '↩️';
+  const isCurrentExit = playerRow === currentMaze.exit.row && playerCol === currentMaze.exit.col;
 
-  const gridCells = MAZE_GRID.flatMap((row, rowIndex) =>
-    row.map((cell, colIndex) => {
-      const isWall = cell === 1;
-      const isExit = rowIndex === EXIT_ROW && colIndex === EXIT_COL;
-      const isStart = rowIndex === START_ROW && colIndex === START_COL;
-      const isPlayer = playerRow === rowIndex && playerCol === colIndex;
-      const isOnPath = containsCell(visitedCells, rowIndex, colIndex);
-      const isMovable =
-        gamePhase === 'playing' &&
-        !isWall &&
-        ((Math.abs(rowIndex - playerRow) === 1 && colIndex === playerCol) ||
-          (Math.abs(colIndex - playerCol) === 1 && rowIndex === playerRow));
+  const cells = React.useMemo(
+    () =>
+      currentMaze.grid.flatMap((row, rowIndex) =>
+        row.map((cell, colIndex) => {
+          const isWall = cell === 1;
+          const isExit = rowIndex === currentMaze.exit.row && colIndex === currentMaze.exit.col;
+          const isStart = rowIndex === currentMaze.start.row && colIndex === currentMaze.start.col;
+          const isPlayer = playerRow === rowIndex && playerCol === colIndex;
+          const isOnPath = containsCell(visitedCells, rowIndex, colIndex);
+          const isMovable =
+            gamePhase === 'playing' &&
+            !isWall &&
+            isAdjacentCell(playerRow, playerCol, rowIndex, colIndex);
 
-      return {
-        rowIndex,
-        colIndex,
-        isWall,
-        isExit,
-        isStart,
-        isPlayer,
-        isOnPath,
-        isMovable,
-      };
-    })
+          return {
+            rowIndex,
+            colIndex,
+            isWall,
+            isExit,
+            isStart,
+            isPlayer,
+            isOnPath,
+            isMovable,
+          };
+        })
+      ),
+    [currentMaze.exit.col, currentMaze.exit.row, currentMaze.grid, currentMaze.start.col, currentMaze.start.row, gamePhase, playerCol, playerRow, visitedCells]
   );
 
-  const mazeBoardStyle = {
-    left: mazeLeft,
-    top: mazeTop,
-    width: mazePixelWidth,
-    height: mazePixelHeight,
-  } as const;
+  const legendItems = [
+    { color: '#2d1a0e', label: t('game2_legend_wall') },
+    { color: '#0d1f3c', label: t('game2_legend_path') },
+    { color: '#064e3b', label: t('game2_legend_exit') },
+  ];
 
-  const moveCounter = `${t('game2_moves')}: ${moveCount}`;
+  const arrowButtons: Array<{ direction: Direction; icon: string }> = isRTL
+    ? [
+        { direction: 'right', icon: '➡️' },
+        { direction: 'down', icon: '⬇️' },
+        { direction: 'left', icon: '⬅️' },
+        { direction: 'up', icon: '⬆️' },
+      ]
+    : [
+        { direction: 'up', icon: '⬆️' },
+        { direction: 'left', icon: '⬅️' },
+        { direction: 'down', icon: '⬇️' },
+        { direction: 'right', icon: '➡️' },
+      ];
 
   return (
     <ImageBackground
@@ -445,7 +564,7 @@ export default function Game2Screen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.topBar, { paddingTop: insets.top + Spacing.two, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <Pressable accessibilityRole="button" onPress={handleExit} style={styles.exitButton}>
-            <Text style={styles.exitIcon}>{topBarArrow}</Text>
+            <Text style={styles.exitIcon}>{isRTL ? '↪️' : '←'}</Text>
           </Pressable>
 
           <Text style={styles.title}>{t('game2_title')}</Text>
@@ -457,10 +576,33 @@ export default function Game2Screen() {
         </View>
 
         <View style={styles.gameShell}>
-          <View style={[styles.mazeBoard, mazeBoardStyle]}>
-            {gridCells.map((cell) => {
+          <View style={styles.legendRow}>
+            <Text style={styles.legendTitle}>{t('game2_maze_label')}</Text>
+            {legendItems.map((item) => (
+              <View key={item.label} style={styles.legendChip}>
+                <View style={[styles.legendSwatch, { backgroundColor: item.color }]} />
+                <Text style={styles.legendText}>{item.label}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View
+            style={[
+              styles.mazeBoard,
+              {
+                left: mazeLeft,
+                top: TOP_BAR_HEIGHT + LEGEND_HEIGHT + 12,
+                width: mazePixelWidth,
+                height: mazePixelHeight,
+              },
+            ]}>
+            {cells.map((cell) => {
+              if (cell.isWall) {
+                return <WallCell key={`${cell.rowIndex}-${cell.colIndex}`} cellSize={cellSize} rowIndex={cell.rowIndex} colIndex={cell.colIndex} />;
+              }
+
               const backgroundColor = getCellColor({
-                isWall: cell.isWall,
+                isWall: false,
                 isExit: cell.isExit,
                 isStart: cell.isStart,
                 isPlayer: cell.isPlayer,
@@ -472,7 +614,7 @@ export default function Game2Screen() {
                 <Pressable
                   key={`${cell.rowIndex}-${cell.colIndex}`}
                   accessibilityRole="button"
-                  disabled={cell.isWall || gamePhase !== 'playing'}
+                  disabled={gamePhase !== 'playing'}
                   onPress={() => handleCellPress(cell.rowIndex, cell.colIndex)}
                   style={[
                     styles.cell,
@@ -482,18 +624,18 @@ export default function Game2Screen() {
                       width: cellSize,
                       height: cellSize,
                       backgroundColor,
-                      borderColor: cell.isWall ? '#0f172a' : 'rgba(201,168,76,0.15)',
+                      borderColor: 'rgba(201,168,76,0.15)',
                     },
                   ]}>
                   {cell.isExit && !cell.isPlayer ? (
                     <View style={styles.cellContent}>
-                      <Text style={{ fontSize: cellSize * 0.5 }}>💰</Text>
+                      <Text style={{ fontSize: Math.max(12, cellSize * 0.5) }}>💰</Text>
                     </View>
                   ) : null}
 
                   {cell.isPlayer ? (
                     <View style={styles.cellContent}>
-                      <Text style={{ fontSize: cellSize * 0.55 }}>🧒</Text>
+                      <Text style={{ fontSize: Math.max(12, cellSize * 0.55) }}>🧒</Text>
                     </View>
                   ) : null}
                 </Pressable>
@@ -509,7 +651,7 @@ export default function Game2Screen() {
               onPress={handleGoBack}
               disabled={gamePhase !== 'playing'}
               style={[styles.controlButton, gamePhase !== 'playing' && styles.controlButtonDisabled]}>
-              <Text style={styles.controlIcon}>{backArrow}</Text>
+              <Text style={styles.controlIcon}>{isRTL ? '↪️' : '↩️'}</Text>
               <Text style={styles.controlLabel}>{t('game2_go_back')}</Text>
             </Pressable>
 
@@ -526,7 +668,7 @@ export default function Game2Screen() {
 
             <View style={styles.controlButton}>
               <Text style={styles.controlIcon}>👣</Text>
-              <Text style={styles.controlLabel}>{moveCounter}</Text>
+              <Text style={styles.controlLabel}>{`${t('game2_moves')}: ${moveCount}`}</Text>
             </View>
           </View>
 
@@ -556,10 +698,7 @@ export default function Game2Screen() {
 
               <View style={styles.overlayDivider} />
 
-              <Pressable
-                accessibilityRole="button"
-                onPress={resetMaze}
-                style={styles.primaryButton}>
+              <Pressable accessibilityRole="button" onPress={resetMazeForRetry} style={styles.primaryButton}>
                 <Text style={styles.primaryButtonText}>{t('game2_retry_button')}</Text>
               </Pressable>
 
@@ -596,27 +735,15 @@ export default function Game2Screen() {
 
               <Text style={styles.xpText}>{`+${REWARD_XP} XP`}</Text>
 
-              {timeBonusSeconds !== null && timeBonusSeconds > 0 ? (
-                <Text style={styles.timeBonusText}>{`${t('game2_time_bonus')}: +${timeBonusSeconds}s ⚡`}</Text>
-              ) : null}
+              {timeBonusSeconds !== null && timeBonusSeconds > 0 ? <Text style={styles.timeBonusText}>{`${t('game2_time_bonus')}: +${timeBonusSeconds}s ⚡`}</Text> : null}
 
               <View style={styles.overlayDivider} />
 
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => {
-                  void handleCompleteAndNavigate('next');
-                }}
-                style={styles.primaryButton}>
+              <Pressable accessibilityRole="button" onPress={() => void handleCompleteAndNavigate('next')} style={styles.primaryButton}>
                 <Text style={styles.primaryButtonText}>{`${t('game2_next_game')} →`}</Text>
               </Pressable>
 
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => {
-                  void handleCompleteAndNavigate('map');
-                }}
-                style={styles.secondaryButton}>
+              <Pressable accessibilityRole="button" onPress={() => void handleCompleteAndNavigate('map')} style={styles.secondaryButton}>
                 <Text style={styles.secondaryButtonText}>{t('game2_back_to_map')}</Text>
               </Pressable>
             </View>
@@ -694,6 +821,38 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
+  legendRow: {
+    position: 'absolute',
+    top: 2,
+    left: 0,
+    right: 0,
+    height: LEGEND_HEIGHT,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  },
+  legendTitle: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+    marginRight: 4,
+  },
+  legendChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  legendSwatch: {
+    width: 14,
+    height: 14,
+    borderRadius: 2,
+  },
+  legendText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
   mazeBoard: {
     position: 'absolute',
     borderWidth: 3,
@@ -701,6 +860,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: 'rgba(2, 6, 23, 0.55)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 12,
   },
   cell: {
     position: 'absolute',
@@ -712,6 +876,38 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  wallMortarTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: '#0a0500',
+  },
+  wallMortarBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: '#0a0500',
+  },
+  wallMortarVertical: {
+    position: 'absolute',
+    top: 2,
+    bottom: 2,
+    width: 2,
+    backgroundColor: '#0a0500',
+  },
+  wallBrickFace: {
+    position: 'absolute',
+    top: 2,
+    bottom: 2,
+    left: 2,
+    right: 2,
+    backgroundColor: '#2d1a0e',
+    borderRadius: 1,
   },
   controlsWrap: {
     position: 'absolute',
